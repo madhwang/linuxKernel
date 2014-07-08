@@ -1,0 +1,2 @@
+kernel/drivers/net/ixgbevf/ixgbevf.ko
+kernel/drivers/net/ixgb/ixgb.ko

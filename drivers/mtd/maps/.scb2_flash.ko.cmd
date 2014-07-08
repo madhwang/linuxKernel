@@ -1,0 +1,1 @@
+cmd_drivers/mtd/maps/scb2_flash.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o drivers/mtd/maps/scb2_flash.ko drivers/mtd/maps/scb2_flash.o drivers/mtd/maps/scb2_flash.mod.o

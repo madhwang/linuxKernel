@@ -1,0 +1,1 @@
+cmd_drivers/mtd/maps/ts5500_flash.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o drivers/mtd/maps/ts5500_flash.ko drivers/mtd/maps/ts5500_flash.o drivers/mtd/maps/ts5500_flash.mod.o

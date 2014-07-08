@@ -1,0 +1,1 @@
+cmd_drivers/mtd/onenand/onenand.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o drivers/mtd/onenand/onenand.ko drivers/mtd/onenand/onenand.o drivers/mtd/onenand/onenand.mod.o

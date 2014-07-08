@@ -1,0 +1,14 @@
+kernel/drivers/mtd/maps/l440gx.ko
+kernel/drivers/mtd/maps/amd76xrom.ko
+kernel/drivers/mtd/maps/esb2rom.ko
+kernel/drivers/mtd/maps/ichxrom.ko
+kernel/drivers/mtd/maps/ck804xrom.ko
+kernel/drivers/mtd/maps/physmap.ko
+kernel/drivers/mtd/maps/sbc_gxx.ko
+kernel/drivers/mtd/maps/netsc520.ko
+kernel/drivers/mtd/maps/ts5500_flash.ko
+kernel/drivers/mtd/maps/pci.ko
+kernel/drivers/mtd/maps/nettel.ko
+kernel/drivers/mtd/maps/scb2_flash.ko
+kernel/drivers/mtd/maps/plat-ram.ko
+kernel/drivers/mtd/maps/intel_vr_nor.ko

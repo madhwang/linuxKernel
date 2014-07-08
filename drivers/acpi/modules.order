@@ -1,0 +1,3 @@
+kernel/drivers/acpi/pci_slot.ko
+kernel/drivers/acpi/sbshc.ko
+kernel/drivers/acpi/sbs.ko

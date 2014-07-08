@@ -1,0 +1,1 @@
+cmd_lib/reed_solomon/reed_solomon.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o lib/reed_solomon/reed_solomon.ko lib/reed_solomon/reed_solomon.o lib/reed_solomon/reed_solomon.mod.o

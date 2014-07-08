@@ -1,0 +1,1 @@
+cmd_arch/x86/kernel/microcode.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o arch/x86/kernel/microcode.ko arch/x86/kernel/microcode.o arch/x86/kernel/microcode.mod.o

@@ -1,0 +1,1 @@
+cmd_drivers/mfd/lpc_sch.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o drivers/mfd/lpc_sch.ko drivers/mfd/lpc_sch.o drivers/mfd/lpc_sch.mod.o

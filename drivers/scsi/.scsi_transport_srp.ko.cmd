@@ -1,0 +1,1 @@
+cmd_drivers/scsi/scsi_transport_srp.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o drivers/scsi/scsi_transport_srp.ko drivers/scsi/scsi_transport_srp.o drivers/scsi/scsi_transport_srp.mod.o

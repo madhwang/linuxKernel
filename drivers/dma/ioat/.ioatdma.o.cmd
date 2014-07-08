@@ -1,0 +1,1 @@
+cmd_drivers/dma/ioat/ioatdma.o := ld -m elf_i386   -r -o drivers/dma/ioat/ioatdma.o drivers/dma/ioat/pci.o drivers/dma/ioat/dma.o drivers/dma/ioat/dma_v2.o drivers/dma/ioat/dma_v3.o drivers/dma/ioat/dca.o 

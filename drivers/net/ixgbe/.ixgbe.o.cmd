@@ -1,0 +1,1 @@
+cmd_drivers/net/ixgbe/ixgbe.o := ld -m elf_i386   -r -o drivers/net/ixgbe/ixgbe.o drivers/net/ixgbe/ixgbe_main.o drivers/net/ixgbe/ixgbe_common.o drivers/net/ixgbe/ixgbe_ethtool.o drivers/net/ixgbe/ixgbe_82599.o drivers/net/ixgbe/ixgbe_82598.o drivers/net/ixgbe/ixgbe_phy.o drivers/net/ixgbe/ixgbe_sriov.o drivers/net/ixgbe/ixgbe_mbx.o 

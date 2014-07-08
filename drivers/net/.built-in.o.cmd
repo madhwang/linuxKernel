@@ -1,0 +1,1 @@
+cmd_drivers/net/built-in.o :=  ld -m elf_i386   -r -o drivers/net/built-in.o drivers/net/mdio.o drivers/net/e1000/built-in.o drivers/net/e1000e/built-in.o drivers/net/igb/built-in.o drivers/net/igbvf/built-in.o drivers/net/ixgbe/built-in.o drivers/net/Space.o drivers/net/loopback.o drivers/net/wireless/built-in.o 

@@ -1,0 +1,6 @@
+kernel/drivers/net/mdio.ko
+kernel/drivers/net/e1000/e1000.ko
+kernel/drivers/net/e1000e/e1000e.ko
+kernel/drivers/net/igb/igb.ko
+kernel/drivers/net/igbvf/igbvf.ko
+kernel/drivers/net/ixgbe/ixgbe.ko

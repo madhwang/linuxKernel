@@ -1,0 +1,8 @@
+kernel/drivers/mtd/nand/nand.ko
+kernel/drivers/mtd/nand/nand_ecc.ko
+kernel/drivers/mtd/nand/nand_ids.ko
+kernel/drivers/mtd/nand/cafe_nand.ko
+kernel/drivers/mtd/nand/nandsim.ko
+kernel/drivers/mtd/nand/cs553x_nand.ko
+kernel/drivers/mtd/nand/plat_nand.ko
+kernel/drivers/mtd/nand/alauda.ko

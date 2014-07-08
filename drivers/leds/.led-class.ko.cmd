@@ -1,0 +1,1 @@
+cmd_drivers/leds/led-class.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o drivers/leds/led-class.ko drivers/leds/led-class.o drivers/leds/led-class.mod.o

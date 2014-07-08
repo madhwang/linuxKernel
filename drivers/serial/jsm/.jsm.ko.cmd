@@ -1,0 +1,1 @@
+cmd_drivers/serial/jsm/jsm.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o drivers/serial/jsm/jsm.ko drivers/serial/jsm/jsm.o drivers/serial/jsm/jsm.mod.o

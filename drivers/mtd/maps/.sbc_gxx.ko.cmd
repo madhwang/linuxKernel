@@ -1,0 +1,1 @@
+cmd_drivers/mtd/maps/sbc_gxx.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o drivers/mtd/maps/sbc_gxx.ko drivers/mtd/maps/sbc_gxx.o drivers/mtd/maps/sbc_gxx.mod.o

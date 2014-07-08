@@ -1,0 +1,1 @@
+cmd_drivers/mtd/rfd_ftl.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o drivers/mtd/rfd_ftl.ko drivers/mtd/rfd_ftl.o drivers/mtd/rfd_ftl.mod.o

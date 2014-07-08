@@ -1,0 +1,1 @@
+cmd_drivers/mtd/nand/cafe_nand.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o drivers/mtd/nand/cafe_nand.ko drivers/mtd/nand/cafe_nand.o drivers/mtd/nand/cafe_nand.mod.o

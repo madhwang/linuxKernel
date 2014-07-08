@@ -1,0 +1,1 @@
+cmd_drivers/mtd/maps/esb2rom.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o drivers/mtd/maps/esb2rom.ko drivers/mtd/maps/esb2rom.o drivers/mtd/maps/esb2rom.mod.o

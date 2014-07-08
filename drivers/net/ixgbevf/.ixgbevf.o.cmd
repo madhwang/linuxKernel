@@ -1,0 +1,1 @@
+cmd_drivers/net/ixgbevf/ixgbevf.o := ld -m elf_i386   -r -o drivers/net/ixgbevf/ixgbevf.o drivers/net/ixgbevf/vf.o drivers/net/ixgbevf/mbx.o drivers/net/ixgbevf/ethtool.o drivers/net/ixgbevf/ixgbevf_main.o 

@@ -1,0 +1,2 @@
+kernel/drivers/serial/jsm/jsm.ko
+kernel/drivers/serial/timbuart.ko

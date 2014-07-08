@@ -1,0 +1,1 @@
+cmd_drivers/mtd/devices/doc2001plus.ko := ld -r -m elf_i386 -T /home/madhwang/Development/linuxSource/linux-2.6.34.7/scripts/module-common.lds --build-id -o drivers/mtd/devices/doc2001plus.ko drivers/mtd/devices/doc2001plus.o drivers/mtd/devices/doc2001plus.mod.o
