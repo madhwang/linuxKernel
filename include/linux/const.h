@@ -16,7 +16,7 @@
 #define _AC(X,Y)	X
 #define _AT(T,X)	X
 #else
-#define __AC(X,Y)	(X##Y)
+#define __AC(X,Y)	(X##Y)  /* ## - concatenation - merging 2 tokens into 1 : 1##2 => 12- by madhwang */
 #define _AC(X,Y)	__AC(X,Y)
 #define _AT(T,X)	((T)(X))
 #endif

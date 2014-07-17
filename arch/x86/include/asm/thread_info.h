@@ -176,16 +176,24 @@ struct thread_info {
  */
 #ifndef __ASSEMBLY__
 
-
+/*
+ * current 매크로 - by madhwang
+ */
 /* how to get the current stack pointer from C */
 register unsigned long current_stack_pointer asm("esp") __used;
 
 /* how to get the thread information struct from C */
 static inline struct thread_info *current_thread_info(void)
 {
+	/*
+	 * ~ 는 1의 보수 by madhwang
+	 * THREAD_SIZE 는 양수로 8191이 되고, 1의 보수는 -8192가 된다.
+	 * 2의 보수는 1의 보수에 +1을 하면 된다.
+	 */
 	return (struct thread_info *)
 		(current_stack_pointer & ~(THREAD_SIZE - 1));
 }
+
 
 #else /* !__ASSEMBLY__ */
 

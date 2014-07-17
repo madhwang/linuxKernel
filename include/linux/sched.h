@@ -1166,6 +1166,8 @@ struct sched_rt_entity {
 };
 
 struct rcu_node;
+
+
 /* 프로세스 서술자 - by madhwang */
 struct task_struct {
 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
