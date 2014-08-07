@@ -404,6 +404,10 @@ static inline notrace void rcu_read_unlock_sched_notrace(void)
  * be safely dereferenced.  It is the caller's responsibility to have
  * done the right thing, as this primitive does no checking of any kind.
  *
+ * 호출자는 반드시 RCU read-side 임계영역의 특정 범위 내에 있거나, 그렇지 않으면
+ * 적절한 잠금을 보유하는 등, 반드시 포인터가 변경되는 것을 방지해야 한다.
+ * 이 포인터는 아마도 나중에 역참조시에도 안전할 것이다.
+ *
  * Inserts memory barriers on architectures that require them
  * (currently only the Alpha), and, more importantly, documents
  * exactly which pointers are protected by RCU.

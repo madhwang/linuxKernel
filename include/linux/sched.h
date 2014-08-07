@@ -220,7 +220,10 @@ extern char ___assert_task_state[1 - 2*!!(
 #define task_contributes_to_load(task)	\
 				((task->state & TASK_UNINTERRUPTIBLE) != 0 && \
 				 (task->flags & PF_FREEZING) == 0)
-
+/*
+ * 현재 프로세스 상태 조작 - by madhwang
+ * : tsk 의 상태를 state_value로 설정
+ */
 #define __set_task_state(tsk, state_value)		\
 	do { (tsk)->state = (state_value); } while (0)
 #define set_task_state(tsk, state_value)		\
@@ -1168,7 +1171,9 @@ struct sched_rt_entity {
 struct rcu_node;
 
 
-/* 프로세스 서술자 - by madhwang */
+/* 프로세스 서술자 - by madhwang
+ * start of task_struct
+ */
 struct task_struct {
 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
 	void *stack;
@@ -1222,6 +1227,7 @@ struct task_struct {
 	struct sched_info sched_info;
 #endif
 
+	/* list_head 는 *prev, *next를 가지고 있다. 즉 task_struct는 양방향 링크드 리스트이다. - by madhwang*/
 	struct list_head tasks;
 	struct plist_node pushable_tasks;
 
@@ -1257,12 +1263,14 @@ struct task_struct {
 	 * p->real_parent->pid)
 	 */
 	struct task_struct *real_parent; /* real parent process */
-	struct task_struct *parent; /* recipient of SIGCHLD, wait4() reports */
+
+	/* 부모의 task_struct - by madhwang */
+	struct task_struct *parent; /* recipient(수령인) of SIGCHLD, wait4() reports */
 	/*
 	 * children/sibling forms the list of my natural children
 	 */
-	struct list_head children;	/* list of my children */
-	struct list_head sibling;	/* linkage in my parent's children list */
+	struct list_head children;	/* list of my children. 자식의 task_struct - by madhwang*/
+	struct list_head sibling;	/* linkage in my parent's children list. 형재 리스트 - by madhwang */
 	struct task_struct *group_leader;	/* threadgroup leader */
 
 	/*
@@ -1507,7 +1515,9 @@ struct task_struct {
 	} memcg_batch;
 #endif
 };
-/* 프로세스 서술자 끝 */
+/* 프로세스 서술자 끝
+ * end of task_struct
+ */
 
 /* Future-safe accessor for struct task_struct's cpus_allowed. */
 #define tsk_cpus_allowed(tsk) (&(tsk)->cpus_allowed)
@@ -1954,6 +1964,8 @@ static inline int kstack_end(void *addr)
 #endif
 
 extern union thread_union init_thread_union;
+
+/* init 태스크 프로세스 서술자 - by madhwang */
 extern struct task_struct init_task;
 
 extern struct   mm_struct init_mm;

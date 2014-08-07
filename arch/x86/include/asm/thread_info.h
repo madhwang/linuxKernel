@@ -178,6 +178,7 @@ struct thread_info {
 
 /*
  * current 매크로 - by madhwang
+ * : thread_info 구조체의 위치를 계산해낸다.
  */
 /* how to get the current stack pointer from C */
 register unsigned long current_stack_pointer asm("esp") __used;

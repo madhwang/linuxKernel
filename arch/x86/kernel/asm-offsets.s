@@ -1,7 +1,7 @@
 	.file	"asm-offsets.c"
 # GNU C (Ubuntu 4.8.2-19ubuntu1) version 4.8.2 (i686-linux-gnu)
 #	compiled by GNU C version 4.8.2, GMP version 5.1.3, MPFR version 3.1.2-p3, MPC version 1.0.1
-# GGC heuristics: --param ggc-min-expand=98 --param ggc-min-heapsize=128202
+# GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
 # options passed:  -nostdinc
 # -I /home/madhwang/Development/linux-2.6.34.7/arch/x86/include -I include
 # -imultiarch i386-linux-gnu -D __KERNEL__ -D CONFIG_AS_CFI=1
