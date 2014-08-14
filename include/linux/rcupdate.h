@@ -395,7 +395,7 @@ static inline notrace void rcu_read_unlock_sched_notrace(void)
 }
 
 
-/**
+/** by madhwang
  * rcu_dereference_raw - fetch an RCU-protected pointer
  *
  * The caller must be within some flavor of RCU read-side critical
@@ -407,10 +407,13 @@ static inline notrace void rcu_read_unlock_sched_notrace(void)
  * 호출자는 반드시 RCU read-side 임계영역의 특정 범위 내에 있거나, 그렇지 않으면
  * 적절한 잠금을 보유하는 등, 반드시 포인터가 변경되는 것을 방지해야 한다.
  * 이 포인터는 아마도 나중에 역참조시에도 안전할 것이다.
+ * 그것은 호출자의 옳은 일을 할 호출자의 책임이며, 이 프리미티브는 어떤 종류의 체크도 하지 않는다.
  *
  * Inserts memory barriers on architectures that require them
  * (currently only the Alpha), and, more importantly, documents
  * exactly which pointers are protected by RCU.
+ * 그들의 필요로(현재는 오직 알파에서만) 아키텍처 상에서 메모리 장벽을 삽입하고, 좀 더 중요한 것은
+ * 문서, 정확히 포인터는 RCU에 의해 보호된다.
  */
 #define rcu_dereference_raw(p)	({ \
 				typeof(p) _________p1 = ACCESS_ONCE(p); \

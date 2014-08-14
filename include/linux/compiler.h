@@ -289,16 +289,36 @@ void ftrace_likely_update(struct ftrace_branch_data *f, int val, int expect);
 #endif
 
 /*
+ *  http://studyfoss.egloos.com/5682616  - by madhwang
+ *
  * Prevent the compiler from merging or refetching accesses.  The compiler
  * is also forbidden from reordering successive instances of ACCESS_ONCE(),
  * but only when the compiler is aware of some particular ordering.  One way
  * to make the compiler aware of ordering is to put the two invocations of
  * ACCESS_ONCE() in different C statements.
  *
+ * 병합 또는 재패치 억세스로부터 컴파일러를 막는다.
+ * 또한 컴파일러 재정렬된 연속된 ACCESS_ONCE()의 인스턴스에서 금지되어 있으나,
+ * 오직 컴파일러가 어떤 특별한 순서를 알고 있는 경우에만 가능하다.
+ *
+ * 컴파일러가 순서를 알게하는 한가지 방법은,  다른 C 구문에 두 개의 ACCESS_ONCE() 호출을
+ * 넣는것이다.
+ *
+ *
  * This macro does absolutely -nothing- to prevent the CPU from reordering,
  * merging, or refetching absolutely anything at any time.  Its main intended
  * use is to mediate communication between process-level code and irq/NMI
  * handlers, all running on the same CPU.
+ * 이 매크로는 절대적으로 재정렬, 통합, 또는 언제든지 어떤 것이든 재패치 하는 것으로 부터 CPU를 방지하기 위해
+ * - 아무것도 - 하지 않는다.
+ * (volatile은 CPU 내부의 메모리 접근 최적화에는 아무런 영향을 주지 못하기 때문에
+ * SMP 환경에서 여러 CPU들이 동시에 실행되는 경우에는 동기화할 수가 없다.)
+ *
+ * 이것의 주된 용도는 같은 CPU 내에서 실행되고 있는 모든 프로세스 레벨 코드와 irq/NMI 핸들러 간의
+ * 통신 중계이다.
+ * merging - 여러 번의 메모리 접근을 하나로 합치는 것
+ * refetching - 이름대로 변수를 한 번 읽는 대신 여러 번 읽어오도록 하는 것
+ * reordering - 서로 연관되지 않은 두 변수 사이의 접근 순서를 바꾸는 경우
  */
 #define ACCESS_ONCE(x) (*(volatile typeof(x) *)&(x))
 
