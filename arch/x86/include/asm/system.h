@@ -368,9 +368,12 @@ void stop_this_cpu(void *dummy);
 #define wmb()	asm volatile("sfence" ::: "memory")
 #endif
 
-/**
+/** by madhwang
+ *
  * read_barrier_depends - Flush all pending reads that subsequents reads
  * depend on.
+ *
+ *  그 다음으로 읽을 것들을 확신하는 보류된 읽기를 모두 flush 한다.
  *
  * No data-dependent reads from memory-like regions are ever reordered
  * over this barrier.  All reads preceding this primitive are guaranteed
@@ -379,6 +382,12 @@ void stop_this_cpu(void *dummy);
  * any of the preceding reads.  This primitive is much lighter weight than
  * rmb() on most CPUs, and is never heavier weight than is
  * rmb().
+ *
+ * 항상 이 장벽을 통해 재정렬 되는 메모리 같은 지역 데이터 의존적인 read는 없다.
+ * 이러한 초기 단계보다 선행하는 모든 읽기는, 선행하는 읽기에 의해 리턴되는 데이터에 의존적인
+ * 이 초기 단계를 뒤따르는 읽기를 수행 전에 메모리를 엑세스 하는 것을 보장한다
+ * (다른 CPU들의 캐시들에 대해서는 반드시 그렇지는 않다.)
+ * 이 초기 단계는 대부분의 CPU상의 rmb() 보다 가볍고, 절대로 rmb()보다는 더 무겁지 않다.
  *
  * These ordering constraints are respected by both the local CPU
  * and the compiler.
