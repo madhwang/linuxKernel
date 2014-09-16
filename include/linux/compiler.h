@@ -319,6 +319,14 @@ void ftrace_likely_update(struct ftrace_branch_data *f, int val, int expect);
  * merging - 여러 번의 메모리 접근을 하나로 합치는 것
  * refetching - 이름대로 변수를 한 번 읽는 대신 여러 번 읽어오도록 하는 것
  * reordering - 서로 연관되지 않은 두 변수 사이의 접근 순서를 바꾸는 경우
+ *
+ * ACCESS_ONCE() 에 대한 추가 설명 - http://studyfoss.egloos.com/5682616
+ * 이것의 목적은 파라메터로 전달 받은 값을 생성된 코드에 의해 반드시 한번만 읽도록 하는 것이다.
+ * 그것은 C컴파일러의 실제적인 작동까지 보게되고, 반대로 제공하지 않을 경우  컴파일시 프로그램의 주소공간 내에서는
+ * 오직 한개의 스레드만이 실행한다고  가정한다.
+ * 동시성은 C언어에 내장되어 있지 않아서, 동시 접근시 행동에 대한 메커니즘은 반드시 언어의 상단에 구성해야 하고
+ * ACCESS_ONCE()가 하나의 메커니즘이 된다.
+ *
  */
 #define ACCESS_ONCE(x) (*(volatile typeof(x) *)&(x))
 

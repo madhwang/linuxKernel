@@ -391,13 +391,19 @@ void stop_this_cpu(void *dummy);
  *
  * These ordering constraints are respected by both the local CPU
  * and the compiler.
+ * 이러한 순서있는 제한은 local cpu와 컴파일러 모두에게 지켜진다.
  *
  * Ordering is not guaranteed by anything other than these primitives,
  * not even by data dependencies.  See the documentation for
  * memory_barrier() for examples and URLs to more information.
+ * 순서는 이러한 근본적인 것을 제외하고는 어떤 것도 보장하지 않으며, 데이터 의존성 또한 마찬가지이다.
+ * memory_barrier()에 대한 문서를 보면 예제와 좀 더 자세한 정보가 있는 URL을 볼 수 있다.
+ *
  *
  * For example, the following code would force ordering (the initial
  * value of "a" is zero, "b" is one, and "p" is "&a"):
+ * 한 예로, 다음 코드는 순서를 제한 했는데,(각각의 초기값은 a = 0, b = 1, p 는 &a)
+ *
  *
  * <programlisting>
  *	CPU 0				CPU 1
@@ -412,6 +418,10 @@ void stop_this_cpu(void *dummy);
  * because the read of "*q" depends on the read of "p" and these
  * two reads are separated by a read_barrier_depends().  However,
  * the following code, with the same initial values for "a" and "b":
+ * 왜냐하면 *q를 읽기 위해서는 p를 먼저 읽어야하는 의존성이 있고, 이 두개의 읽기는
+ * read_barrier_depends()에 의해 분리되어 있다.
+ * 그러나 다음 코드는 a와 b에 대해 같은 초기값을 가졌으나,
+ *
  *
  * <programlisting>
  *	CPU 0				CPU 1
@@ -427,6 +437,10 @@ void stop_this_cpu(void *dummy);
  * the read of "a" and the read of "b".  Therefore, on some CPUs, such
  * as Alpha, "y" could be set to 3 and "x" to 0.  Use rmb()
  * in cases like this where there are no data dependencies.
+ * 순서가 강제되지 않는데, a 와 b의 읽기 간의 데이터 의존성이 없기 때문이다.
+ * 그러므로 Alpha 같은 일부 CPU 상에서는 y는 3 으로 세팅되고 x는 0으로 세팅된다.
+ * rmb()를 사용한 케이스에서도 데이터 의존성이 없다면 위의 내용과 같다
+ *
  **/
 
 #define read_barrier_depends()	do { } while (0)
