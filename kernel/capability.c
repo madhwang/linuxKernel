@@ -290,21 +290,50 @@ error:
 	return ret;
 }
 
-/**
+/** - by madhwang
  * capable - Determine if the current task has a superior capability in effect
  * @cap: The capability to be tested for
+ *   현재 task 가 주어진 cap 파라미터 영향 내에 있는 상위 능력을 가지고 있는지 결정한다.
  *
  * Return true if the current task has the given superior capability currently
  * available for use, false if not.
+ * 현재 task 가 가진 주어진 상위 능력이 현재 가능하다면 true 를 리턴하고, 그렇지 않으면 false 를 리턴한다.
+ *
  *
  * This sets PF_SUPERPRIV on the task if the capability is available on the
  * assumption that it's about to be used.
+ *
+ * 그것을 사용할 거라는 가정하에 능력이 가능하다면 이것은 task에 PF_SUPERPRIV를 세팅한다.
+ *
+ *
+ * static inline int security_capable(int cap) // linux/security.h
+{
+	return cap_capable(current, current_cred(), cap, SECURITY_CAP_AUDIT);
+}
+ *
  */
 int capable(int cap)
 {
+	/*
+	 * cap_valid 는  cap 값이 0이상 33이하 인지 체크하고
+	 * unlikely는 컴파일러 최적화 매크로이며, 파라미터가 거짓일 확률이 높다는 것을 알리는 매크로 함수이며,
+	 * 반대로 likely는 파라미터가 참일 확률이 높다는 것을 알려준다.
+	 *
+	 * unlikely매크로 내용은 __builtin_expect(!!(x), 0)와 같이 되어 있다.
+	 *
+	 * __builtin_expect(a,b)는 a가 b일 확률이 높다는 것을 CPU에게 알려주는 역할을 한다.
+	 * 코드 최적화를 위해 필요한 코드로서, 주로 분기문에서 사용된다.
+	 *
+	 * if( __builtin_expect(a>4,1)){
+	 *  printf("hello\n");
+	 *  }
+	 *  과 같이 코딩시 cpu는 printf를 실행할 분기 준비를 한다. 분기시에는 현재 실행이 되는 코드는 stack에 저장이 되고,
+	 *  실행한 코드를 메모리에서 읽어 들이는 일을 하게 된다. 위의 코드를 사용하게 되면 프로그램 실행시 분기문 안의 코드가
+	 *  미리 캐시로 읽어 들여져서 분기가 최대한 빨리 실행이 되게 된다.
+	 */
 	if (unlikely(!cap_valid(cap))) {
 		printk(KERN_CRIT "capable() called with invalid cap=%u\n", cap);
-		BUG();
+		BUG(); /* bug.h*/
 	}
 
 	if (security_capable(cap) == 0) {

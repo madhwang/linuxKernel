@@ -1014,6 +1014,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	retval = -EAGAIN;
 	if (atomic_read(&p->real_cred->user->processes) >=
 			task_rlimit(p, RLIMIT_NPROC)) {
+		/* capable 함수 - kernel/capability.c */
 		if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RESOURCE) &&
 		    p->real_cred->user != INIT_USER)
 			goto bad_fork_free;
@@ -1345,11 +1346,14 @@ struct task_struct * __cpuinit fork_idle(int cpu)
 	return task;
 }
 
-/*
+/* by madhwang
  *  Ok, this is the main fork-routine.
  *
  * It copies the process, and if successful kick-starts
  * it and waits for it to finish using the VM if required.
+ * 이것은 프로세스를 복사하고, 만약 성공적으로 시작하게 되면
+ * 필요한 경우 vm을 이용하여, 그것이 끝나기를 기다린다
+ *
  */
 long do_fork(unsigned long clone_flags,
 	      unsigned long stack_start,
@@ -1365,16 +1369,19 @@ long do_fork(unsigned long clone_flags,
 	/*
 	 * Do some preliminary argument and permissions checking before we
 	 * actually start allocating stuff
+	 *
+	 * 우리가 실제로 할당 작업을 시작하기 전에, 몇몇 예비 인수와 권한을 체크한다.
 	 */
 	if (clone_flags & CLONE_NEWUSER) {
 		if (clone_flags & CLONE_THREAD)
-			return -EINVAL;
+			return -EINVAL; /* Invalid argument  - errno-base.h */
 		/* hopefully this check will go away when userns support is
 		 * complete
+		 * user 네임 스페이스 지원이 완료되면 이 체크는 버려지길 희망한다.
 		 */
 		if (!capable(CAP_SYS_ADMIN) || !capable(CAP_SETUID) ||
 				!capable(CAP_SETGID))
-			return -EPERM;
+			return -EPERM; /* Operation not permitted  */
 	}
 
 	/*

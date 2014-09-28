@@ -1963,6 +1963,13 @@ static inline int security_capset(struct cred *new,
 	return cap_capset(new, old, effective, inheritable, permitted);
 }
 
+/*
+ * by madhwang
+ * cap_capable - cmmoncap.c
+ * current - current.h. 현재 태스크를 CPU당 변수로 안전하게 만든 후 가져온다.
+ * current_cred() - cred.h
+ *
+ */
 static inline int security_capable(int cap)
 {
 	return cap_capable(current, current_cred(), cap, SECURITY_CAP_AUDIT);

@@ -67,18 +67,28 @@ EXPORT_SYMBOL(cap_netlink_recv);
 
 /**
  * cap_capable - Determine whether a task has a particular effective capability
- * @tsk: The task to query
- * @cred: The credentials to use
- * @cap: The capability to check for
- * @audit: Whether to write an audit message or not
+ * 태스크가 특정한 실질적인 기능을 가지고 있는지 결정한다.
+ * @tsk: The task to query  - 질의할 태스크
+ * @cred: The credentials to use - 사용할 자격 증명
+ * @cap: The capability to check for - 체크할 능력
+ * @audit: Whether to write an audit message or not - 검사 메시지를 작성할 것인지 아닌지 여부
+ *
  *
  * Determine whether the nominated task has the specified capability amongst
  * its effective set, returning 0 if it does, -ve if it does not.
+ * 지정된 태스크가 실질적인 세트 사이에 명시화된 기능을 가지고 있는지 확인하고 만약 가지고 있으면 0을 리턴하고,
+ * 아니면 -ve 를 리턴한다.
  *
  * NOTE WELL: cap_has_capability() cannot be used like the kernel's capable()
  * and has_capability() functions.  That is, it has the reverse semantics:
  * cap_has_capability() returns 0 when a task has a capability, but the
  * kernel's capable() and has_capability() returns 1 for this case.
+ *
+ * cap_has_capability() 는 커널의 capable() 와 has_capability() 함수 처럼 사용할 수 없다.
+ * 즉, 그것은 반대의미를 가지고 있다.
+ * cap_has_capability() 는 그 태스크가 기능을 가지고 있는 경우 0 을 리턴하나,
+ * 커널의 capable() 과 has_capability()는 이 경우 1을 리턴한다.
+ *
  */
 int cap_capable(struct task_struct *tsk, const struct cred *cred, int cap,
 		int audit)

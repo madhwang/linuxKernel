@@ -198,6 +198,14 @@ do {									\
  * get_current() and get_thread_info() both of which are actually
  * per-thread variables implemented as per-cpu variables and thus
  * stable for the duration of the respective task.
+ *
+ * percpu_read()는 percpu_read_stable() 가 값을 캐시할 수 있는 동안
+ * percpu 값을 엑세스 할때마다 gcc가 load 할 수 있게 만든다.
+ *
+ * percpu_read_stable()는 더 효율적이며 만약 그 값이 보장되는 경우 CPU를 통해 유효하게 사용할 수 있다.
+ * 현재 유저들에 포함된 get_current()와 get_thread_info() 둘다 실제로 CPU당-변수와 같이 쓰레드당-변수로 구현되었고
+ * 따라서 각 태스크의 지속기간동안 안정적이다.
+ *
  */
 #define percpu_read(var)		percpu_from_op("mov", var, "m" (var))
 #define percpu_read_stable(var)		percpu_from_op("mov", var, "p" (&(var)))

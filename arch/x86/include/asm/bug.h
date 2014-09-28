@@ -12,6 +12,9 @@
 # define __BUG_C0	"2:\t.long 1b - 2b, %c0 - 2b\n"
 #endif
 
+/*
+ * unreachable - 코드가 도달할 수 없다는 의미의 gcc 매크로
+ */
 #define BUG()							\
 do {								\
 	asm volatile("1:\tud2\n"				\

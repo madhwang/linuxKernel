@@ -261,10 +261,13 @@ static inline void put_cred(const struct cred *_cred)
 		__put_cred(cred);
 }
 
-/**
+/** by madhwang
  * current_cred - Access the current task's subjective credentials
+ * 현재 태스크의 개인적인 자격 증명에 엑세스
  *
  * Access the subjective credentials of the current task.
+ * 현재 태스크의 개인적인 자격 증명에 엑세스
+ *
  */
 #define current_cred() \
 	(current->cred)
