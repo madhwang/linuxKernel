@@ -1967,7 +1967,11 @@ static inline int security_capset(struct cred *new,
  * by madhwang
  * cap_capable - cmmoncap.c
  * current - current.h. 현재 태스크를 CPU당 변수로 안전하게 만든 후 가져온다.
- * current_cred() - cred.h
+ * current_cred() - cred.h. 현재 task_struct 의 cred를 리턴.
+ *
+ * return //
+ *  0 = 권한을 가지고 있을 경우
+ *  -1 = 권한을 가지고 있지 않은 경우
  *
  */
 static inline int security_capable(int cap)

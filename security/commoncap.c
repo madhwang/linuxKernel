@@ -69,7 +69,7 @@ EXPORT_SYMBOL(cap_netlink_recv);
  * cap_capable - Determine whether a task has a particular effective capability
  * 태스크가 특정한 실질적인 기능을 가지고 있는지 결정한다.
  * @tsk: The task to query  - 질의할 태스크
- * @cred: The credentials to use - 사용할 자격 증명
+ * @cred: The credentials to use - 사용할 자격 증명. 현재 task_struct의 cred
  * @cap: The capability to check for - 체크할 능력
  * @audit: Whether to write an audit message or not - 검사 메시지를 작성할 것인지 아닌지 여부
  *
@@ -93,6 +93,19 @@ EXPORT_SYMBOL(cap_netlink_recv);
 int cap_capable(struct task_struct *tsk, const struct cred *cred, int cap,
 		int audit)
 {
+	/*
+	 * cap_effective 는 kernel_cap_t 타입이며, kernel_cap_t 는
+	 * typedef struct kernel_cap_struct { __u32 cap[_KERNEL_CAPABILITY_U32S]; } kernel_cap_t;
+	 * 와 같은 구조체로 선언되어 있다.
+	 *
+	 * __u32는  typedef unsigned int __u32;
+	 *
+	 * _KERNEL_CAPABILITY_U32S 는 아래와 같이 선언되어 있고, 결과적으로 2의 값을 갖는다.
+	 * #define _KERNEL_CAPABILITY_U32S    _LINUX_CAPABILITY_U32S_3
+	 * #define _LINUX_CAPABILITY_U32S_3     2
+	 *
+	 * 같으면 0, 다르면 -EPERM (-1) 을 리턴한다.
+	 */
 	return cap_raised(cred->cap_effective, cap) ? 0 : -EPERM;
 }
 

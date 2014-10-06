@@ -360,7 +360,9 @@ struct cpu_vfs_cap_data {
 #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
 
 /*
+ *  by madhwang
  * Bit location of each capability (used by user-space library and kernel)
+ * 각 capablity 의 비트 위치( 유저 스페이스 라이브러리와 커널에서 사용 )
  */
 
 #define CAP_TO_INDEX(x)     ((x) >> 5)        /* 1 << 5 == bits in __u32 */
@@ -421,6 +423,17 @@ struct cpu_vfs_cap_data {
 
 #define cap_raise(c, flag)  ((c).cap[CAP_TO_INDEX(flag)] |= CAP_TO_MASK(flag))
 #define cap_lower(c, flag)  ((c).cap[CAP_TO_INDEX(flag)] &= ~CAP_TO_MASK(flag))
+
+/* by madhwang
+ *
+ * #define CAP_TO_INDEX(x)     ((x) >> 5)        //1 << 5 == bits in __u32
+ * #define CAP_TO_MASK(x)      (1 << ((x) & 31)) //mask for indexed __u32
+ *
+ * c(cap)은 최대값이 33이며, 이는 비트값으로 100001(=33)이 된다.
+ * 이 값이 CAP_TO_INDEX를 거치면 0 또는 1의 값을 갖게되고,
+ *
+ * CAP_TO_MASK 를 거치면 최대 1<< 31 이 나오게 된다.
+ */
 #define cap_raised(c, flag) ((c).cap[CAP_TO_INDEX(flag)] & CAP_TO_MASK(flag))
 
 #define CAP_BOP_ALL(c, a, b, OP)                                    \
