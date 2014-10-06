@@ -336,6 +336,10 @@ int capable(int cap)
 		BUG(); /* bug.h*/
 	}
 
+	/*
+	 * cap 이 현재 task_struct 에서 가능한 권한인지 확인한다.
+	 * 0 이면 권한 가능, -1이면 권한 없음 .
+	 */
 	if (security_capable(cap) == 0) {
 		current->flags |= PF_SUPERPRIV;
 		return 1;
