@@ -1375,6 +1375,7 @@ long do_fork(unsigned long clone_flags,
 	if (clone_flags & CLONE_NEWUSER) {
 		if (clone_flags & CLONE_THREAD)
 			return -EINVAL; /* Invalid argument  - errno-base.h */
+
 		/* hopefully this check will go away when userns support is
 		 * complete
 		 * user 네임 스페이스 지원이 완료되면 이 체크는 버려지길 희망한다.
