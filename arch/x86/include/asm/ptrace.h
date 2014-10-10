@@ -151,16 +151,24 @@ static inline unsigned long regs_return_value(struct pt_regs *regs)
 	return regs->ax;
 }
 
-/*
+/* by madhwang
  * user_mode_vm(regs) determines whether a register set came from user mode.
  * This is true if V8086 mode was enabled OR if the register set was from
  * protected mode with RPL-3 CS value.  This tricky test checks that with
  * one comparison.  Many places in the kernel can bypass this full check
  * if they have already ruled out V8086 mode, so user_mode(regs) can be used.
+ *
+ * user_mode_vm(regs)는 유저모드로 부터 온 레지스터를 세팅할지 여부를 결정한다.
+ * 만약 V8086 모드가 enable 되어 있거나, 레지스터가 RPL-3 CS 값과 함께 보호모드로 부터 세팅되어 있다면
+ * 이것은 항상 true 이다.
+ * 이러한 까다로운 테스트는 하나를 비교해서 확인한다.
+ * 그들은 이미 V8086 모드를 제외한 경우, 커널의 많은 부분에서 이 전체 체크를 생략할 수 있도록 했으며,
+ * 그래서 user_mode(regs)를 사용할 수 있다.
  */
 static inline int user_mode(struct pt_regs *regs)
 {
 #ifdef CONFIG_X86_32
+	/* return (regs-> cs & 0x3 ) == 0x3; */
 	return (regs->cs & SEGMENT_RPL_MASK) == USER_RPL;
 #else
 	return !!(regs->cs & 3);

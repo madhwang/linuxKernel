@@ -221,7 +221,7 @@ static inline void tracehook_report_exit(long *exit_code)
 	ptrace_event(PT_TRACE_EXIT, PTRACE_EVENT_EXIT, *exit_code);
 }
 
-/**
+/** by madhwang
  * tracehook_prepare_clone - prepare for new child to be cloned
  * @clone_flags:	%CLONE_* flags from clone/fork/vfork system call
  *
@@ -229,20 +229,28 @@ static inline void tracehook_report_exit(long *exit_code)
  * Its return value will be passed to tracehook_finish_clone().
  *
  * Called with no locks held.
+ *
+ * tracehook_prepare_clone - 복제될 새로운 자식 프로세스를 준비한다.
+ * @clone_flag : %CLONE_* 플래그는 clone/fork/vfork/ 시스템 콜로 부터 전달 받는다.
+ *
+ * 이것은 새로운 유저 태스크가 복제되기 전에 호출된다.
+ * 그것의 리턴 값은 tracehook_finish_clone() 에 전달될 것이다.
+ *
+ * 락이 유지되지 않고 호출된다.
  */
 static inline int tracehook_prepare_clone(unsigned clone_flags)
 {
-	if (clone_flags & CLONE_UNTRACED)
+	if (clone_flags & CLONE_UNTRACED) //0x00800000
 		return 0;
 
-	if (clone_flags & CLONE_VFORK) {
-		if (current->ptrace & PT_TRACE_VFORK)
-			return PTRACE_EVENT_VFORK;
-	} else if ((clone_flags & CSIGNAL) != SIGCHLD) {
-		if (current->ptrace & PT_TRACE_CLONE)
-			return PTRACE_EVENT_CLONE;
-	} else if (current->ptrace & PT_TRACE_FORK)
-		return PTRACE_EVENT_FORK;
+	if (clone_flags & CLONE_VFORK) { //0x00004000
+		if (current->ptrace & PT_TRACE_VFORK) //0x00000020
+			return PTRACE_EVENT_VFORK; //2
+	} else if ((clone_flags & CSIGNAL) != SIGCHLD) { //0x000000ff , 17
+		if (current->ptrace & PT_TRACE_CLONE) //0x00000040
+			return PTRACE_EVENT_CLONE; //3
+	} else if (current->ptrace & PT_TRACE_FORK) //0x00000010
+		return PTRACE_EVENT_FORK; //1
 
 	return 0;
 }

@@ -1402,11 +1402,12 @@ long do_fork(unsigned long clone_flags,
 		}
 	}
 
-	/*
+	/* by madhwang
 	 * When called from kernel_thread, don't do user tracing stuff.
+	 * 유저모드로 부터 온 레지스터를 세팅할지 여부를 결정한다.
 	 */
 	if (likely(user_mode(regs)))
-		trace = tracehook_prepare_clone(clone_flags);
+		trace = tracehook_prepare_clone(clone_flags); //복제될 새로운 자식 프로세스를 준비한다.
 
 	p = copy_process(clone_flags, stack_start, regs, stack_size,
 			 child_tidptr, NULL, trace);
