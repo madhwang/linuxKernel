@@ -946,13 +946,17 @@ static void posix_cpu_timers_init(struct task_struct *tsk)
 	INIT_LIST_HEAD(&tsk->cpu_timers[2]);
 }
 
-/*
+/* by madhwang
  * This creates a new process as a copy of the old one,
  * but does not actually start it yet.
+ * 이것은 이전의 복사본과 같이 새로운 프로세스를 만드나
+ * 실제로는 아직 그것을 시작하지는 않는다.
  *
  * It copies the registers, and all the appropriate
  * parts of the process environment (as per the clone
  * flags). The actual kick-off is left to the caller.
+ * 그것은 레지스터들과 프로세스 환경의 (clone 플래그에 따라)모든 해당 부분을 카피한다.
+ * 실제 킥오프는 호출자에 남아있다.
  */
 static struct task_struct *copy_process(unsigned long clone_flags,
 					unsigned long stack_start,
@@ -972,6 +976,8 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	/*
 	 * Thread groups must share signals as well, and detached threads
 	 * can only be started up within the thread group.
+	 * 스레드 그룹은 시그널 또한 공유해야 하며, 분리된 스레드만이 스레드 그룹 내에서
+	 * 기동할 수 있다.
 	 */
 	if ((clone_flags & CLONE_THREAD) && !(clone_flags & CLONE_SIGHAND))
 		return ERR_PTR(-EINVAL);
@@ -980,6 +986,10 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	 * Shared signal handlers imply shared VM. By way of the above,
 	 * thread groups also imply shared VM. Blocking this case allows
 	 * for various simplifications in other code.
+	 *
+	 * 시그널 핸들러 공유는 VM 공유를 의미한다.
+	 * 위의 방법으로, 스레드 그룹 또한 VM 공유를 의미한다.
+	 * 이 경우를 차단하면 다른 코드의 다양한 단순화를 허용할 수 있다.
 	 */
 	if ((clone_flags & CLONE_SIGHAND) && !(clone_flags & CLONE_VM))
 		return ERR_PTR(-EINVAL);
@@ -990,8 +1000,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	 * multi-rooted process trees, prevent global and container-inits
 	 * from creating siblings.
 	 */
-	if ((clone_flags & CLONE_PARENT) &&
-				current->signal->flags & SIGNAL_UNKILLABLE)
+	if ((clone_flags & CLONE_PARENT) && (current->signal->flags & SIGNAL_UNKILLABLE))
 		return ERR_PTR(-EINVAL);
 
 	retval = security_task_create(clone_flags);
