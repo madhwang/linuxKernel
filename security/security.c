@@ -729,6 +729,10 @@ int security_dentry_open(struct file *file, const struct cred *cred)
 	return security_ops->dentry_open(file, cred);
 }
 
+/* by madhwang
+ *
+ * 태스크 생성 전에 clone_flags 에 대해 퍼미션을 체크한다.
+ */
 int security_task_create(unsigned long clone_flags)
 {
 	return security_ops->task_create(clone_flags);

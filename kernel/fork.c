@@ -999,6 +999,11 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	 * not reaped by their parent (swapper). To solve this and to avoid
 	 * multi-rooted process trees, prevent global and container-inits
 	 * from creating siblings.
+	 *
+	 *  전역 초기화의 형제 프로세스들은 종료시에 좀비로 남게되어 그 이후에
+	 *  그들의 부모(스와퍼)에 의해 회수 되지 않는다.
+	 *  이걸 해결하고 멀티 루트 프로세스 트리를 방지하기 위해, 형제 프로세스로 부터
+	 *  전역 및 컨테이너 초기화를 방지한다.
 	 */
 	if ((clone_flags & CLONE_PARENT) && (current->signal->flags & SIGNAL_UNKILLABLE))
 		return ERR_PTR(-EINVAL);
@@ -1335,6 +1340,7 @@ bad_fork_free:
 fork_out:
 	return ERR_PTR(retval);
 }
+/* end of do fork */
 
 noinline struct pt_regs * __cpuinit __attribute__((weak)) idle_regs(struct pt_regs *regs)
 {
