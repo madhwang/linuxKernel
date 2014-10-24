@@ -174,15 +174,20 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
 }
 
 /**
+ * - by madhwang
  * struct security_operations - main security structure
  *
  * Security module identifier.
  *
  * @name:
- *	A string that acts as a unique identifeir for the LSM with max number
+ *	A string that acts as a unique identifier for the LSM with max number
  *	of characters = SECURITY_NAME_MAX.
  *
  * Security hooks for program execution operations.
+ *
+ * @name:
+ * LSM의 고유 식별자 역할을 하는 문자열로서 SECURITY_NAME_MAX 값이 최대 문자 개수가 된다.
+ * 프로그램 실행 작업에 대한 보안 후크.
  *
  * @bprm_set_creds:
  *	Save security information in the bprm->security field, typically based
@@ -194,7 +199,14 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	checking to see if @bprm->security is non-NULL.  If so, then the hook
  *	may decide either to retain the security information saved earlier or
  *	to replace it.
- *	@bprm contains the linux_binprm structure.
+ *
+ * @bprm_set_creds:
+ * apply_creds 후크에의해 나중에 사용하기 위하여, 일반적으로 bprm->file에 관한 정보에 기반하여
+ * bprm->security 필드내에 보안정보를 저장한다.
+ * 이 후크는 또한 선택적으로 퍼미션을 체크할 수도 있다(예를 들면 보안 도메인 간의 전환에 대해)
+ *
+ *	@bprm :
+ *	contains the linux_binprm structure.
  *	Return 0 if the hook is successful and permission is granted.
  * @bprm_check_security:
  *	This hook mediates the point when a search for a binary handler will
