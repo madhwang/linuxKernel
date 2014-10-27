@@ -187,7 +187,9 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *
  * @name:
  * LSM의 고유 식별자 역할을 하는 문자열로서 SECURITY_NAME_MAX 값이 최대 문자 개수가 된다.
+ *
  * 프로그램 실행 작업에 대한 보안 후크.
+ *
  *
  * @bprm_set_creds:
  *	Save security information in the bprm->security field, typically based
@@ -204,10 +206,20 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  * apply_creds 후크에의해 나중에 사용하기 위하여, 일반적으로 bprm->file에 관한 정보에 기반하여
  * bprm->security 필드내에 보안정보를 저장한다.
  * 이 후크는 또한 선택적으로 퍼미션을 체크할 수도 있다(예를 들면 보안 도메인 간의 전환에 대해)
+ * 이 후크는 예를 들면 인터프리터들에 의해, 단일 execve 동안 여러 번 호출될 수 있다.
+ * 이 후크는 brpm->security 가 널이 아닌지를 확인해서 이미 호출 되었는지를 알 수 있다.
+ * 그렇다면, 후크는 이전에 저장된 보안 정보를 유지하거나 교체할 수 있다.
+ *
  *
  *	@bprm :
  *	contains the linux_binprm structure.
  *	Return 0 if the hook is successful and permission is granted.
+ *
+ * @bprm :
+ * 	linux_binprm 구조체를 포함한다.
+ *	만약 hook이 성공하고 퍼미션이 부여되면 0을 리턴한다.
+ *
+ *
  * @bprm_check_security:
  *	This hook mediates the point when a search for a binary handler will
  *	begin.  It allows a check the @bprm->security value which is set in the
@@ -217,6 +229,10 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	pass set_creds is called first.
  *	@bprm contains the linux_binprm structure.
  *	Return 0 if the hook is successful and permission is granted.
+ *
+ *	@bprm_check_security:
+ *
+ *
  * @bprm_committing_creds:
  *	Prepare to install the new security attributes of a process being
  *	transformed by an execve operation, based on the old credentials
