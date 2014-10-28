@@ -227,10 +227,13 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	that the argv list and envp list are reliably available in @bprm.  This
  *	hook may be called multiple times during a single execve; and in each
  *	pass set_creds is called first.
- *	@bprm contains the linux_binprm structure.
- *	Return 0 if the hook is successful and permission is granted.
+ *
  *
  *	@bprm_check_security:
+ * 이 훅은 바이너리 핸들러에 대한 검색이 시작되는 시점에 영향을 받는다.
+ * 그것은 선행된 set_creds 호출에 세팅된 @bprm->securiry 값의 체크를 허용한다.
+ * set_creds 와 주요한 다른 점은 argv 리스트와 envp 리스트가 @bprm에서 확실하게 사용 가능하다.
+ * 이 후크는 단일 execv가 실행되는 동안 여러 번 호출될 수 있으며, 각각 전달된 set_creds는 먼저 호출된다.
  *
  *
  * @bprm_committing_creds:
@@ -242,6 +245,12 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	as closing open file descriptors to which access will no longer be
  *	granted when the attributes are changed.  This is called immediately
  *	before commit_creds().
+ *
+ *	@bprm_committing_creds:
+ * *	@current->cred에 의해 지시된 이전 자격증명과 bprm_set_creds 후크에 의해 @brpm->cred에
+ *	설정된 정보를 기반으로, execve 작동에 의해 변형된 프로세스의 새로운 보안 속성을 설치할 준비를 한다.
+ *
+ *
  * @bprm_committed_creds:
  *	Tidy up after the installation of the new security attributes of a
  *	process being transformed by an execve operation.  The new credentials
