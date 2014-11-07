@@ -178,16 +178,16 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  * struct security_operations - main security structure
  *
  * Security module identifier.
+ * 보안 모듈 구분자
  *
  * @name:
  *	A string that acts as a unique identifier for the LSM with max number
  *	of characters = SECURITY_NAME_MAX.
  *
- * Security hooks for program execution operations.
- *
- * @name:
+*  @name:
  * LSM의 고유 식별자 역할을 하는 문자열로서 SECURITY_NAME_MAX 값이 최대 문자 개수가 된다.
  *
+ * Security hooks for program execution operations.
  * 프로그램 실행 작업에 대한 보안 후크.
  *
  *
@@ -228,7 +228,6 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	hook may be called multiple times during a single execve; and in each
  *	pass set_creds is called first.
  *
- *
  *	@bprm_check_security:
  * 이 훅은 바이너리 핸들러에 대한 검색이 시작되는 시점에 영향을 받는다.
  * 그것은 선행된 set_creds 호출에 세팅된 @bprm->securiry 값의 체크를 허용한다.
@@ -247,8 +246,12 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	before commit_creds().
  *
  *	@bprm_committing_creds:
- * *	@current->cred에 의해 지시된 이전 자격증명과 bprm_set_creds 후크에 의해 @brpm->cred에
- *	설정된 정보를 기반으로, execve 작동에 의해 변형된 프로세스의 새로운 보안 속성을 설치할 준비를 한다.
+ * @current->cred에 의해 지시된 이전 자격증명과 bprm_set_creds 후크에 의해 @brpm->cred에
+ * 설정된 정보를 기반으로, execve 작동에 의해 변형된 프로세스의 새로운 보안 속성을 설치할 준비를 한다.
+ * @bprm은 linux_binprm 구조체를 가리킨다.
+ * 오픈된 파일 디스크립터를 닫으면 속성이 변경되었을 때 엑세스는 더 이상 허용되지 않는 것과 같이
+ * 이 후크는 프로세스의 상태를 바꾸기에 좋은 위치에 있다.
+ * 이것은 commit_creds() 이전에 즉시 호출된다.
  *
  *
  * @bprm_committed_creds:
@@ -258,12 +261,28 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	linux_binprm structure.  This hook is a good place to perform state
  *	changes on the process such as clearing out non-inheritable signal
  *	state.  This is called immediately after commit_creds().
+ *
+ *	@brpm_committed_creds:
+ * 프로세스에 설치된 새로운 보안 속성들이 execve 작동에 의해 변형된 후 정돈한다.
+ * 이것에 의해 새롭게 가지는 권한들은 @current->cred에 세팅된다.
+ * @brpm 은 linux_binprm 구조체를 가리킨다.
+ * 이 후크는 비상속 시그널 상태를 제거등과 같은 프로세스 상의 상태 변경을 수행하기에는 좋은 위치이다.
+ * 이것은 commit_creds() 후에 즉시 호출된다.
+ *
+ *
  * @bprm_secureexec:
  *	Return a boolean value (0 or 1) indicating whether a "secure exec"
  *	is required.  The flag is passed in the auxiliary table
  *	on the initial stack to the ELF interpreter to indicate whether libc
  *	should enable secure mode.
  *	@bprm contains the linux_binprm structure.
+ *
+ * @bprm_secureexec :
+ *  "secure exec"가 필요한지에 대한 여부를 지시하는 부울린 값(0 또는 1)을 리턴한다.
+ *   이 플래그는 libc의 보안 모드 사용 여부를 나타내기 위해 ELF 인터프리터 초기 스택의 보조 테이블에
+ *   전달된다.
+ *
+ *
  *
  * Security hooks for filesystem operations.
  *
