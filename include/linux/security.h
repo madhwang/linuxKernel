@@ -285,6 +285,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *
  *
  * Security hooks for filesystem operations.
+ * 파일시스템 작동을 위한 보안 후크들.
  *
  * @sb_alloc_security:
  *	Allocate and attach a security structure to the sb->s_security field.
@@ -292,6 +293,12 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	allocated.
  *	@sb contains the super_block structure to be modified.
  *	Return 0 if operation was successful.
+ *
+ *	@sb_alloc_security:
+ *  sb->s_security 필드에 보안 구조체를 할당하고 연결한다.
+ *  s_security 필드는 구조체가 할당될 때 NULL로 초기화된다.
+ *  @sb 는 수정할 super_block 구조체가 포함되어 있다.
+ *
  * @sb_free_security:
  *	Deallocate and clear the sb->s_security field.
  *	@sb contains the super_block structure to be modified.
