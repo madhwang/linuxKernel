@@ -298,15 +298,30 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *  sb->s_security 필드에 보안 구조체를 할당하고 연결한다.
  *  s_security 필드는 구조체가 할당될 때 NULL로 초기화된다.
  *  @sb 는 수정할 super_block 구조체가 포함되어 있다.
+ *  작업이 성공한 경우는 0을 리턴한다.
+ *
  *
  * @sb_free_security:
  *	Deallocate and clear the sb->s_security field.
  *	@sb contains the super_block structure to be modified.
+ *
+ *	@sb_free_security:
+ *	sb->s_secutiry 필드 할당을 해제하고 없앤다.
+ *	@sb 는 수정할 super_block 구조체가 포함되어 있다.
+ *
+ *
  * @sb_statfs:
  *	Check permission before obtaining filesystem statistics for the @mnt
  *	mountpoint.
  *	@dentry is a handle on the superblock for the filesystem.
  *	Return 0 if permission is granted.
+ *
+ *	@sb_statfs:
+ *	@mnt 마운트 포인트에 대해 파일 시스템 통계를 얻기 전에 퍼미션을 체크한다.
+ *	@dentry는 파일시스템의 수퍼 블럭 핸들이다.
+ *	퍼미션이 주어지면 0이 리턴된다.
+ *
+ *
  * @sb_mount:
  *	Check permission before an object specified by @dev_name is mounted on
  *	the mount point named by @nd.  For an ordinary mount, @dev_name
@@ -320,6 +335,14 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@flags contains the mount flags.
  *	@data contains the filesystem-specific data.
  *	Return 0 if permission is granted.
+ *
+ *	@sb_mount:
+ *	@dev_name 으로 지정된 객체가 @nd 라는 이름의 마운트 포인트에 마운트 하기 전에 퍼미션을 체크한다.
+ *
+ *
+ *
+ *
+ *
  * @sb_copy_data:
  *	Allow mount option data to be copied prior to parsing by the filesystem,
  *	so that the security module can extract security-specific mount
