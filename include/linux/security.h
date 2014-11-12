@@ -338,9 +338,15 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *
  *	@sb_mount:
  *	@dev_name 으로 지정된 객체가 @nd 라는 이름의 마운트 포인트에 마운트 하기 전에 퍼미션을 체크한다.
- *
- *
- *
+ *  일반적인 마운트에서, 파일시스템 유형이 장치를 필요로 하면 @dev_name는 장치를 식별한다.
+ *  재마운트에서는(@flags & MS_REMOUNT), @dev_name 은 무관하다.
+ *  루프백/바인드 마운트에서는(@flags & MS_BIND), @dev_named 은 마운트된 객체의 경로명을 식별한다.
+ *  @dev_name 은 마운트된 객체의 이름을 포함한다.
+ *  @path 는 마운트 포인트 객체에 대한 경로를 포함한다.
+ *  @type 은 파일시스템 유형을 포함한다.
+ *  @flags 는 마운트 플래그들을 포함한다.
+ *  @data 는 파일시스템 특정 데이터를 포함한다.
+ *  만약 퍼미션이 주어지면 0을 리턴한다.
  *
  *
  * @sb_copy_data:
@@ -353,17 +359,40 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@orig the original mount data copied from userspace.
  *	@copy copied data which will be passed to the security module.
  *	Returns 0 if the copy was successful.
+ *
+ *	@sb_copy_data:
+ *	마운트 옵션 데이터는 파일 시스템에 의해 분석되기 전에 복사를 허용하여, 보안 모듈이
+ *	보안 관련 마운트 옵션을 깨끗이 추출할 수 있도록 한다.( 파일 시스템이 데이터를 수정했을 수도 있다. 예를 들면,strsep()를 이용하여)
+ *	이것은 또한 원래 마운트 데이터가 그 파일 시스템을 인식하는 것을 방지하기 위해
+ *	보안 관련 옵션을 박탈하는 것을 허용한다.
+ *  @type 은 마운트 된 파일 시스템의 유형이다.
+ *  @orig 는 유저 스페이스로 부터 복사된 원래 마운트 데이터 이다.
+ *  @copy 는 보안 모듈로 전달될 데이터를 복사한 데이터
+ *  성공하면 0을 리턴한다.
+ *
+ *
  * @sb_check_sb:
  *	Check permission before the device with superblock @mnt->sb is mounted
  *	on the mount point named by @nd.
  *	@mnt contains the vfsmount for device being mounted.
  *	@path contains the path for the mount point.
  *	Return 0 if permission is granted.
+ *
+ *	@sb_check_sb:
+ *	 @nd에 의해 명명된 마운트 포인트에 마운트 되기 전에  @mnt->sb 수퍼 블럭 장치 퍼미션을 체크한다.
+ *	 @mnt 는 마운트된 장치에 대한 vfsmount를 포함한다.
+ *	 @path 는 마운트 포인트에 대한 경로를 포함한다.
+ *	 퍼미션이 주어지면 0를 리턴한다.
+ *
  * @sb_umount:
  *	Check permission before the @mnt file system is unmounted.
  *	@mnt contains the mounted file system.
  *	@flags contains the unmount flags, e.g. MNT_FORCE.
  *	Return 0 if permission is granted.
+ *
+ *	@sb_umount:
+ *
+ *
  * @sb_umount_close:
  *	Close any files in the @mnt mounted filesystem that are held open by
  *	the security module.  This hook is called during an umount operation
