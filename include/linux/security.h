@@ -391,6 +391,10 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	Return 0 if permission is granted.
  *
  *	@sb_umount:
+ *	@mnt 파일 시스템이 언마운트 되기 전에 퍼미션을 체크한다.
+ *	@mnt는 마운트 된 파일 시스템을 포함한다.
+ *	@flags 는 언마운트 플래그를 포함한다.예를 들면 MNT_FORCE.
+ *	퍼미션이 주어지면 0을 리턴한다.
  *
  *
  * @sb_umount_close:
@@ -398,24 +402,56 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	the security module.  This hook is called during an umount operation
  *	prior to checking whether the filesystem is still busy.
  *	@mnt contains the mounted filesystem.
+ *
+ *	@sb_umount_close:
+ *	@mnt 에 마운트된 파일 시스템 내에서 보안 모듈에 의해 오픈되어 유지되던 모든 파일이 닫힌다.
+ *	이 후크는 언마운트 동작 동안에 파일 시스템이 여전히 사용 중인지 검사에 앞서 호출된다.
+ *	@mnt는 마운트된 파일 시스템을 포함한다.
+ *
+ *
  * @sb_umount_busy:
  *	Handle a failed umount of the @mnt mounted filesystem, e.g.  re-opening
  *	any files that were closed by umount_close.  This hook is called during
  *	an umount operation if the umount fails after a call to the
  *	umount_close hook.
  *	@mnt contains the mounted filesystem.
+ *
+ *	@sb_umount_busy:
+ *	umount_closed에 의해 닫힌 모든 파일을 재오픈하는 등,@mnt에 마운트된 파일 시스템의 언마운트가 실패했을
+ *	경우를 관리한다.
+ *	이 후크는 언마운트 동작 동안  umount_close 후크가 호출된 후 언마운트가 실패하면 호출된다.
+ * @mnt는 마운트된 파일 시스템을 포함한다.
+ *
+ *
  * @sb_post_remount:
  *	Update the security module's state when a filesystem is remounted.
  *	This hook is only called if the remount was successful.
  *	@mnt contains the mounted file system.
  *	@flags contains the new filesystem flags.
  *	@data contains the filesystem-specific data.
+ *
+ *	@sb_post_remount:
+ *	파일 시스템이 재마운트 될 때 보안 모듈 상태를 업데이트 한다.
+ *	이 후크는 재마운트가 성공했을 때만 호출된다.
+ *	@mnt 는 마운트된 파일 시스템을 포함한다.
+ *	@flags 새로운 파일 시스템 플래그를 포함한다.
+ *	@data는 파일 시스템 특정 데이터를 포함한다.
+ *
+ *
  * @sb_post_addmount:
  *	Update the security module's state when a filesystem is mounted.
- *	This hook is called any time a mount is successfully grafetd to
+ *	This hook is called any time a mount is successfully grafted to
  *	the tree.
  *	@mnt contains the mounted filesystem.
  *	@mountpoint contains the path for the mount point.
+ *
+ *	@sb_post_addmount:
+ *	파일 시스템이 마운트 되면 보안 모듈의 상태를 업데이트 한다.
+ *	이 후크는 마운트가 성공적으로 트리에 연결될 때마다 호출된다.
+ *	@mnt 는 마운트된 파일 시스템을 포함한다.
+ *	@mountpoint는 마운트 포인트에 대한 경로를 포함한다.
+ *
+ *
  * @sb_pivotroot:
  *	Check permission before pivoting the root filesystem.
  *	@old_path contains the path for the new location of the current root (put_old).
