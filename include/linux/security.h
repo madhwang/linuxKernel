@@ -457,24 +457,61 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@old_path contains the path for the new location of the current root (put_old).
  *	@new_path contains the path for the new root (new_root).
  *	Return 0 if permission is granted.
+ *
+ *	@sb_pivotroot:
+ *	루트 파일 시스템 위치를 변경하기 전에 퍼미션을 체크한다.
+ *	@old_path 는 현재 루트의 새로운 위치에 대한 경로를 포함한다.(put_old)
+ *	@new_path 는 새로운 루트의 경로를 포함한다(new_root)
+ *	퍼미션이 부여되면 0을 리턴한다.
+ *
+ *
  * @sb_post_pivotroot:
  *	Update module state after a successful pivot.
  *	@old_path contains the path for the old root.
  *	@new_path contains the path for the new root.
+ *
+ *	@sb_port_pivotroot:
+ *	(루트 시스템)위치 변경이 성공된 후 모듈 상태를 업데이트 한다.
+ *	@old_path 는 이전의 루트에 대한 경로를 포함한다.
+ *	@new_path 는 새로운 루트에 대한 경로를 포함한다.
+ *
+ *
  * @sb_set_mnt_opts:
  *	Set the security relevant mount options used for a superblock
  *	@sb the superblock to set security mount options for
- *	@opts binary data structure containing all lsm mount data
+ *	@opts binary data structure containing all lsm mount data.
+ *
+ *	@sb_set_mnt_opts:
+ *	수퍼 블록에 사용되는 보안관련 마운트 옵션을 설정한다.
+ *	@sb 수퍼블록은 모든 lsm 마운트 데이터를 포함하는 @opts 바이너리 데이터 구조체에 대해
+ *	보안 마운트 옵션을 세팅한다.
+ *
+ *
  * @sb_clone_mnt_opts:
  *	Copy all security options from a given superblock to another
  *	@oldsb old superblock which contain information to clone
  *	@newsb new superblock which needs filled in
+ *
+ *	@sb_clone_mnt_opts:
+ *	주어진 수퍼블록으로 부터 다른 것으로 모든 보안 옵션을 복사한다.
+ *  @oldsb 는 뵥제 정보가 포함된 이전 수퍼블록
+ *  @newsb 는 채워야할 새로운 수퍼블록
+ *
  * @sb_parse_opts_str:
  *	Parse a string of security data filling in the opts structure
  *	@options string containing all mount options known by the LSM
  *	@opts binary data structure usable by the LSM
  *
+ *	@sb_parse_opts_str:
+ *	opts 구조체에 들어있는 보안 데이터의 문자열을 구문 분석한다.
+ *	@options 는 LSM에 의해 알려진 모든 마운트 옵션을 포함한 문자열
+ *	@opts 는 LSM에 의해 사용가능한 바이너리 데이터 구조체.
+ *
+ *
+ *
  * Security hooks for inode operations.
+ * inode 작동을 위한 보안 후크
+ *
  *
  * @inode_alloc_security:
  *	Allocate and attach a security structure to @inode->i_security.  The
@@ -482,10 +519,24 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	allocated.
  *	@inode contains the inode structure.
  *	Return 0 if operation was successful.
+ *
+ *	@inode_alloc_security:
+ *	@inode->i_security 에 보안 구조체를 할당하여, 붙인다.
+ *	inode 구조체가 할당될 때, i_security 필드는 NULL로 초기화된다.
+ *	@inode 는 inode 구조체를 포함한다.
+ *	성공하면 0을 리턴한다.
+ *
+ *
  * @inode_free_security:
  *	@inode contains the inode structure.
  *	Deallocate the inode security structure and set @inode->i_security to
  *	NULL.
+ *
+ * @inode_free_security:
+ * @inode inode 구조체를 포함하고 있다.
+ * inode 보안 구조체 할당을을 해제하고 @inode->i_security를 NULL로 초기화 한다.
+ *
+ *
  * @inode_init_security:
  *	Obtain the security attribute name suffix and value to set on a newly
  *	created inode and set up the incore security field for the new inode.
@@ -505,6 +556,16 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	Returns 0 if @name and @value have been successfully set,
  *		-EOPNOTSUPP if no security attribute is needed, or
  *		-ENOMEM on memory allocation failure.
+ *
+ *	@inode_init_security:
+ *  보안 속성 이름을 접미어와 값을 얻어서 새롭게 생성되는 inode 와 새 inode 의 보안 필드를 세팅한다.
+ *  이 후크는 inode 생성 트랜잭션의 일부인 fs 코드에 의해 호출되며, VFS에 의해 호출되는 post_create/mkdir/... 과는 달리
+ *  inode의 원자 라벨을 제공한다.
+ *  이 후크 함수는 kmalloc 을 통해 이름과 값을 할당 받고, 호출자가 그것을 사용한 후에 kfree를 호출할 책임을
+ *  요구한다.
+ *
+ *
+ *
  * @inode_create:
  *	Check permission to create a regular file.
  *	@dir contains inode structure of the parent of the new file.
