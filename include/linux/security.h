@@ -563,7 +563,17 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *  inode의 원자 라벨을 제공한다.
  *  이 후크 함수는 kmalloc 을 통해 이름과 값을 할당 받고, 호출자가 그것을 사용한 후에 kfree를 호출할 책임을
  *  요구한다.
+ *  만약 보안 모듈이 보안 속성을 사용하지 않거나 이 특별한 inode에 보안 속성 넣기를 원하지 않는다면, 그것은
+ *  EOPNOTSUPP 를 리턴하여 이 절차를 스킵할 것이다.
+ *  @inode는 새롭게 생성된 inode의  inode 구조체를 포함한다.
+ *  @dir은 부모 디렉토리의 inode  구조체를 포함한다.
+ *  @name은 할당된 이름의 접미사가 된다(selinux 등)
+ *  @value 는 할당된 속성의 값이 된다.
+ *  @len 값의 길이가 된다.
  *
+ *  @name과 @value가 성공적으로 세팅되면 0을 리턴하고
+ *  보안 속성이 필요하지 않다면 EOPNOTSUPP를,
+ *  메모리 할당이 실해파면 ENOMEM을 리턴한다.
  *
  *
  * @inode_create:
@@ -572,12 +582,30 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@dentry contains the dentry structure for the file to be created.
  *	@mode contains the file mode of the file to be created.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_create:
+ *	일반 파일 생성 권한을 확인한다.
+ *	@dir은 새 파일의 부모의 inode 구조체를 포함한다.
+ *	@dentry는 생성된 파일에 대한  dentry 구조체를 포함한다.
+ *	@mode는 생성된 파일에 대한 파일 모드를 포함한다.
+ *	퍼미션이 주어지면 0을 리턴한다.
+ *
+ *
  * @inode_link:
  *	Check permission before creating a new hard link to a file.
  *	@old_dentry contains the dentry structure for an existing link to the file.
  *	@dir contains the inode structure of the parent directory of the new link.
  *	@new_dentry contains the dentry structure for the new link.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_link:
+ *	파일에 대한 새로운 하드 링크를 생성하기 전에 퍼미션을 체크한다.
+ *	@old_dentry 는 파일에 대해 존재하는 링크에 대한 dentry 구조체를 포함한다.
+ *	@dir은 새로운 링크의 부모 디렉토리에 대한 inode 구조체를 포함한다.
+ *	@new_dentry 는 새로운 링크에 대한 dentry 구조체를 포함한다.
+ *	퍼미션이 주어지면 0을 리턴한다.
+ *
+ *
  * @path_link:
  *	Check permission before creating a new hard link to a file.
  *	@old_dentry contains the dentry structure for an existing link
@@ -586,22 +614,55 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	the new link.
  *	@new_dentry contains the dentry structure for the new link.
  *	Return 0 if permission is granted.
+ *
+ *	@path_link:
+ *	파일에 대한 새로운 하드 링크를 생성하기 전에 권한을 체크한다.
+ *	@old_dentry 는 파일에 대해 존재하는 링크에 대한 dentry 구조체를 포함한다.
+ *	@dir은 새로운 링크의 부모 디렉토리에 대한 inode 구조체를 포함한다.
+ *	@new_dentry 는 새로운 링크에 대한 dentry 구조체를 포함한다.
+ *	퍼미션이 주어지면 0을 리턴한다.
+ *
+ *
  * @inode_unlink:
  *	Check the permission to remove a hard link to a file.
  *	@dir contains the inode structure of parent directory of the file.
  *	@dentry contains the dentry structure for file to be unlinked.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_unlink:
+ *	파일에 대한 하드링크 제거 권한을 체크한다.
+ *	@dir은 파일의 부모 디렉토리의 inode 구조체를 포함한다.
+ *	@dentry 는 unlink된 파일에 대한 dentry 구조체를 포함한다.
+ *	퍼미션이 주어지면 0을 리턴한다.
+ *
  * @path_unlink:
  *	Check the permission to remove a hard link to a file.
  *	@dir contains the path structure of parent directory of the file.
  *	@dentry contains the dentry structure for file to be unlinked.
  *	Return 0 if permission is granted.
+ *
+ *	@path_unlink:
+ *	파일에 대한 하드링크 제거 권한을 체크한다.
+ *	@dir은 파일의 부모 디렉토리의 inode 구조체를 포함한다.
+ *	@dentry 는 unlink된 파일에 대한 dentry 구조체를 포함한다.
+ *	퍼미션이 주어지면 0을 리턴한다.
+ *
+ *
  * @inode_symlink:
  *	Check the permission to create a symbolic link to a file.
  *	@dir contains the inode structure of parent directory of the symbolic link.
  *	@dentry contains the dentry structure of the symbolic link.
  *	@old_name contains the pathname of file.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_symlink:
+ *	퍼일에 대한 심볼릭 링크 생성 권한을 확인한다.
+ *	@dir은 심볼링 링크의 부모 디렉토리의 inode 구조체를 포함한다.
+ *	@dentry는 심볼링 링크의 dentry 구조체를 포함한다.
+ *	@old_name 은 파일의 경로명을 포함한다
+ *	권한이 주어지면 0 을 리턴한다.
+ *
+ *
  * @path_symlink:
  *	Check the permission to create a symbolic link to a file.
  *	@dir contains the path structure of parent directory of
