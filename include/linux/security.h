@@ -346,7 +346,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *  @type 은 파일시스템 유형을 포함한다.
  *  @flags 는 마운트 플래그들을 포함한다.
  *  @data 는 파일시스템 특정 데이터를 포함한다.
- *  만약 퍼미션이 주어지면 0을 리턴한다.
+ *  만약 권한이 허용되면 0 을 리턴한다.
  *
  *
  * @sb_copy_data:
@@ -394,7 +394,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@mnt 파일 시스템이 언마운트 되기 전에 퍼미션을 체크한다.
  *	@mnt는 마운트 된 파일 시스템을 포함한다.
  *	@flags 는 언마운트 플래그를 포함한다.예를 들면 MNT_FORCE.
- *	퍼미션이 주어지면 0을 리턴한다.
+ *	권한이 허용되면 0 을 리턴한다.
  *
  *
  * @sb_umount_close:
@@ -588,7 +588,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@dir은 새 파일의 부모의 inode 구조체를 포함한다.
  *	@dentry는 생성된 파일에 대한  dentry 구조체를 포함한다.
  *	@mode는 생성된 파일에 대한 파일 모드를 포함한다.
- *	퍼미션이 주어지면 0을 리턴한다.
+ *	권한이 허용되면 0 을 리턴한다.
  *
  *
  * @inode_link:
@@ -603,7 +603,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@old_dentry 는 파일에 대해 존재하는 링크에 대한 dentry 구조체를 포함한다.
  *	@dir은 새로운 링크의 부모 디렉토리에 대한 inode 구조체를 포함한다.
  *	@new_dentry 는 새로운 링크에 대한 dentry 구조체를 포함한다.
- *	퍼미션이 주어지면 0을 리턴한다.
+ *	권한이 허용되면 0 을 리턴한다.
  *
  *
  * @path_link:
@@ -620,7 +620,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@old_dentry 는 파일에 대해 존재하는 링크에 대한 dentry 구조체를 포함한다.
  *	@dir은 새로운 링크의 부모 디렉토리에 대한 inode 구조체를 포함한다.
  *	@new_dentry 는 새로운 링크에 대한 dentry 구조체를 포함한다.
- *	퍼미션이 주어지면 0을 리턴한다.
+ *	권한이 허용되면 0 을 리턴한다..
  *
  *
  * @inode_unlink:
@@ -633,7 +633,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	파일에 대한 하드링크 제거 권한을 체크한다.
  *	@dir은 파일의 부모 디렉토리의 inode 구조체를 포함한다.
  *	@dentry 는 unlink된 파일에 대한 dentry 구조체를 포함한다.
- *	퍼미션이 주어지면 0을 리턴한다.
+ *	권한이 허용되면 0 을 리턴한다.
  *
  * @path_unlink:
  *	Check the permission to remove a hard link to a file.
@@ -645,7 +645,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	파일에 대한 하드링크 제거 권한을 체크한다.
  *	@dir은 파일의 부모 디렉토리의 inode 구조체를 포함한다.
  *	@dentry 는 unlink된 파일에 대한 dentry 구조체를 포함한다.
- *	퍼미션이 주어지면 0을 리턴한다.
+ *	권한이 허용되면 0 을 리턴한다.
  *
  *
  * @inode_symlink:
@@ -660,7 +660,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@dir은 심볼링 링크의 부모 디렉토리의 inode 구조체를 포함한다.
  *	@dentry는 심볼링 링크의 dentry 구조체를 포함한다.
  *	@old_name 은 파일의 경로명을 포함한다
- *	권한이 주어지면 0 을 리턴한다.
+ *	권한이 허용되면 0 을 리턴한다.
  *
  *
  * @path_symlink:
@@ -670,26 +670,61 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@dentry contains the dentry structure of the symbolic link.
  *	@old_name contains the pathname of file.
  *	Return 0 if permission is granted.
+ *
+ *	@path_symlink:
+ *	파일에 대한 심볼링 링크 생성 권한을 확인한다.
+ *	@dir은 심볼링 링크의 부모 디렉토리의 path 구조체를 포함한다.
+ *	@dentry는 심볼링 링크의 dentry 구조체를 포함한다.
+ *	@old_name 은 파일의 경로명을 포함한다.
+ *	권한이 허용되면 0을 리턴한다.
+ *
+ *
  * @inode_mkdir:
  *	Check permissions to create a new directory in the existing directory
  *	associated with inode strcture @dir.
- *	@dir containst the inode structure of parent of the directory to be created.
+ *	@dir contains the inode structure of parent of the directory to be created.
  *	@dentry contains the dentry structure of new directory.
  *	@mode contains the mode of new directory.
  *	Return 0 if permission is granted.
+ *
+ * @inode_mkdir:
+ * inode 구조체인 @dir과 관련된 존재하는 디렉토리 내에 새로운 디렉토리를 만들 수 있는지 권한을 확인한다.
+ * @dir은 생성된 것에 대한 부모 디렉토리의 inode구조체를 포함한다.
+ * @dentry는 새로운 디렉토리의 dentry 구조체를 포함한다.
+ * @mode는 새로운 디렉토리의 모드를 포함한다.
+ * 권한이 허용되면 0을 리턴한다.
+ *
+ *
  * @path_mkdir:
  *	Check permissions to create a new directory in the existing directory
  *	associated with path strcture @path.
- *	@dir containst the path structure of parent of the directory
+ *	@dir contains the path structure of parent of the directory
  *	to be created.
  *	@dentry contains the dentry structure of new directory.
  *	@mode contains the mode of new directory.
  *	Return 0 if permission is granted.
+ *
+ * @path_mkdir:
+ *  path 구조체 @path와 관계된 존재하는 디렉토리 내에 새로운 디렉토리를 만들 수 있는지 권한을 확인한다.
+ *  @dir은 생성된 것에 대한 부모 디렉토리의 path 구조체를 포함한다.
+ *  @dentry 는 새로운 디렉토리의 dentry 구조체를 포함한다.
+ *  @mode는 새로운 디렉토리의 mode를 포함한다.
+ *  권한이 허용되면 0을 리턴한다.
+ *
+ *
  * @inode_rmdir:
  *	Check the permission to remove a directory.
  *	@dir contains the inode structure of parent of the directory to be removed.
  *	@dentry contains the dentry structure of directory to be removed.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_rmdir:
+ *	디렉토리 제거에 대한 퍼미션을 체크한다.
+ *	@dir는 삭제된 것에 대한 부모 디렉토리의 inode구조체를 포함한다.
+ *	@dentry는 삭제된 디렉토리에 대한 dentry 구조체를 포함한다.
+ *	권한이 허용되면 0을 리턴한다.
+ *
+ *
  * @path_rmdir:
  *	Check the permission to remove a directory.
  *	@dir contains the path structure of parent of the directory to be
