@@ -689,7 +689,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *
  * @inode_mkdir:
  * inode 구조체인 @dir과 관련된 존재하는 디렉토리 내에 새로운 디렉토리를 만들 수 있는지 권한을 확인한다.
- * @dir은 생성된 것에 대한 부모 디렉토리의 inode구조체를 포함한다.
+ * @dir은 생성될 디렉토리의 부모의 inode구조체를 포함한다.
  * @dentry는 새로운 디렉토리의 dentry 구조체를 포함한다.
  * @mode는 새로운 디렉토리의 모드를 포함한다.
  * 권한이 허용되면 0을 리턴한다.
@@ -706,7 +706,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *
  * @path_mkdir:
  *  path 구조체 @path와 관계된 존재하는 디렉토리 내에 새로운 디렉토리를 만들 수 있는지 권한을 확인한다.
- *  @dir은 생성된 것에 대한 부모 디렉토리의 path 구조체를 포함한다.
+ *  @dir은 생성될 디렉토리의 부모의 path 구조체를 포함한다.
  *  @dentry 는 새로운 디렉토리의 dentry 구조체를 포함한다.
  *  @mode는 새로운 디렉토리의 mode를 포함한다.
  *  권한이 허용되면 0을 리턴한다.
@@ -720,7 +720,7 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *
  *	@inode_rmdir:
  *	디렉토리 제거에 대한 퍼미션을 체크한다.
- *	@dir는 삭제된 것에 대한 부모 디렉토리의 inode구조체를 포함한다.
+ *	@dir는 삭제될 디렉토리의 부모의 inode구조체를 포함한다.
  *	@dentry는 삭제된 디렉토리에 대한 dentry 구조체를 포함한다.
  *	권한이 허용되면 0을 리턴한다.
  *
@@ -731,6 +731,14 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	removed.
  *	@dentry contains the dentry structure of directory to be removed.
  *	Return 0 if permission is granted.
+ *
+ *	@path_rmdir:
+ *	디렉토리 삭제에 대한 퍼미션을 체크한다.
+ *	@dir은 삭제될 디렉토리의 부모의 path 구조체를 포함한다.
+ *	@dentry은 삭제될 디렉토리의 dentry 구조체를 포함한다.
+ *	권한이 허용되면 0을 리턴한다.
+ *
+ *
  * @inode_mknod:
  *	Check permissions when creating a special file (or a socket or a fifo
  *	file created via the mknod system call).  Note that if mknod operation
@@ -741,6 +749,17 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@mode contains the mode of the new file.
  *	@dev contains the device number.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_mknod:
+ *	특별한 파일(또는 소켓, 또는 mknod 시스템 콜을 통해 fifo 파일)을 생성할 때 권한을 체크한다.
+ *	만약 mknod가 일반 파일에 대해 동작하면, creat 후크가 호출되고 이 후크는 호출되지 않는다.
+ *	@dir은 새로운 파일의 부모의 inode 구조체를 포함한다.
+ *	@dentry는 새로운 파일의 dentry구조체를 포함한다.
+ *	@mode는 새로운 파일의 mode를 포함한다.
+ *	@dev는 디바이스 번호를 포함한다.
+ * 	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @path_mknod:
  *	Check permissions when creating a file. Note that this hook is called
  *	even if mknod operation is being done for a regular file.
@@ -750,6 +769,16 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@dev contains the undecoded device number. Use new_decode_dev() to get
  *	the decoded device number.
  *	Return 0 if permission is granted.
+ *
+ *	@path_mknod:
+ *	파일을 생성할때 퍼미션을 체크한다. 이 후크는 mknod가 일반 파일에 대해 작동할 때 호출된다.
+ *	@dir은 새 파일의 부모의 path 구조체를 포함한다.
+ *	@dentry는 새 파일의 dentry 구조체를 포함한다.
+ *	@dev는 디코드 되자 않은 디바이스 번호를 포함한다. new_decode_dev()를 사용해서
+ *	디코드된 디바이스 번호를 가져온다.
+ *	권한이 주어지면 0을 리턴한다
+ *
+ *
  * @inode_rename:
  *	Check for permission to rename a file or directory.
  *	@old_dir contains the inode structure for parent of the old link.
