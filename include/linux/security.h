@@ -853,15 +853,32 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  * @path 는 path 구조체를 갖는다.
  * 권한이 주어지면 0을 리턴한다.
  *
+ *
  * @inode_readlink:
  *	Check the permission to read the symbolic link.
  *	@dentry contains the dentry structure for the file link.
  *	Return 0 if permission is granted.
+ *
+ * @inode_readlink:
+ * 심볼링 링크를 읽을 수 있는 권한을 체크한다.
+ * @dentry는 파일 링크에 대한 dentry 구조체를 포함한다.
+ * 권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @inode_follow_link:
  *	Check permission to follow a symbolic link when looking up a pathname.
  *	@dentry contains the dentry structure for the link.
  *	@nd contains the nameidata structure for the parent directory.
  *	Return 0 if permission is granted.
+ *
+ *
+ *	@inode_follow_link:
+ *	경로 이름을 찾을 때 심볼릭 링크를 따라가는 권한을 체크한다.
+ *	@dentry은 링크에 대한 dentry 구조체를 포함한다.
+ *	@nd는 부모 디렉토리에 대한 nameidata 구조체를 갖는다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @inode_permission:
  *	Check permission before accessing an inode.  This hook is called by the
  *	existing Linux permission function, so a security module can use it to
@@ -873,6 +890,18 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@mask contains the permission mask.
  *	@nd contains the nameidata (may be NULL).
  *	Return 0 if permission is granted.
+ *
+ *	@inode_permission:
+ *	inode에 접근하기 전에 퍼미션을 체크한다. 이 후크는 기존 Linux 퍼미션 함수에 의해 호출되고,
+ *	보안 모듈은 기존의 Linix 퍼미션 체크을 위해 체공하는 추가 검사를 사용할 수 있다.
+ *	이 후크는 파일이 오픈될때(뿐만 아니라 다른 많은 동작) 호출되고, 반면에 file_security_ops 퍼미션 후크는
+ *	실제로 읽기/쓰기 작업을 수행할 때 호출된다는 점에 주목해야 한다.
+ *	@inode는 inode구조체에 대한 체크를 포함한다.
+ *	@mask는 퍼미션 mask 를 갖는다.
+ *	@nd는 nameidata를 갖는다(아마도 NULL 일 것이다.)
+ *	권한이 주어지면 0을 리턴한다ㅏ.
+ *
+ *
  * @inode_setattr:
  *	Check permission before setting file attributes.  Note that the kernel
  *	call to notify_change is performed from several locations, whenever
@@ -881,17 +910,43 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@dentry contains the dentry structure for the file.
  *	@attr is the iattr structure containing the new file attributes.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_setattr:
+ *	파일 속성을 세팅하기 전에 권한을 체크한다.
+ *	주목해야 할 점은 파일속성을 바꿀때(파일을 자르거나, chown/chmod 수행, 디스크 할당량 전송 등),
+ *	커널은 notify_change 호출을 여러 위치에서 수행한다.
+ *	@dentry는 파일에 대한 dentry 구조체를 포함한다.
+ *	@attr는 새로운 파일 속성을 포함한 iattr 구조체이다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @path_truncate:
  *	Check permission before truncating a file.
  *	@path contains the path structure for the file.
  *	@length is the new length of the file.
  *	@time_attrs is the flags passed to do_truncate().
  *	Return 0 if permission is granted.
+ *
+ *	@path_truncate:
+ *	파일을 자르기 전에 권한을 체크한다.
+ *	@path는 파일에 대한 path 구조체를 포함한다.
+ *	@length는 파일의 새로운 길이이다.
+ *	@time_attr은 do_truncate()에 전달되는 flag이다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @inode_getattr:
  *	Check permission before obtaining file attributes.
  *	@mnt is the vfsmount where the dentry was looked up
  *	@dentry contains the dentry structure for the file.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_getattr:
+ *	파일 속성을 취득하기 전에 권한을 체크한다.
+ *	@mnt는 dentry가 찾아낸 vfsmount이다.
+ *	@dentry는 파일에 대한 dentry 구조체를 포함한다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
  * @inode_delete:
  *	@inode contains the inode structure for deleted inode.
  *	This hook is called when a deleted inode is released (i.e. an inode
