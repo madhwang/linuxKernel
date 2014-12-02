@@ -786,6 +786,16 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@new_dir contains the inode structure for parent of the new link.
  *	@new_dentry contains the dentry structure of the new link.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_rename:
+ *	파일 또는 디렉토리 이름변경에 대한 권한을 체크한다.
+ *	@old_dir은 예전 링크의 부모에 대한 inode구조체를 갖는다.
+ *	@old_dentry는 예전 링크의 dentry 구조체를 갖는다.
+ *	@new_dir 은 새 링크의 부모의 inode 구조체를 갖는다.
+ *	@new_dentry는 새 링크의 dentry 구조체를 갖는다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @path_rename:
  *	Check for permission to rename a file or directory.
  *	@old_dir contains the path structure for parent of the old link.
@@ -793,22 +803,56 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@new_dir contains the path structure for parent of the new link.
  *	@new_dentry contains the dentry structure of the new link.
  *	Return 0 if permission is granted.
+ *
+ * @path_rename:
+ * 파일 또는 디렉토리 이름 변경에 대한 권한을 체크한다.
+ * @old_dir은 예전 링크의 부모에 대한 path 구조체를 갖는다.
+ * @old_dentry는 예전 링크의 dentry 구조체를 갖는다.
+ * @new_dir은 새 링크의 부모에 대한 path 구조체를 갖는다.
+ * @new_dentry는 새 링크의 dentry 구조체를 포함한다.
+ * 권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @path_chmod:
  *	Check for permission to change DAC's permission of a file or directory.
  *	@dentry contains the dentry structure.
  *	@mnt contains the vfsmnt structure.
  *	@mode contains DAC's mode.
  *	Return 0 if permission is granted.
+ *
+ *	@path_chmod:
+ *	파일 또는 디렉토리의 DAC 변경 권한에 대해 퍼미션을 체크한다.
+ *	@dentry 는 dentry 구조체를 갖는다.
+ *	@mnt는 vfsmnt 구조체를 갖는다.
+ *	@mode는 DAC의 모드를 갖는다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @path_chown:
  *	Check for permission to change owner/group of a file or directory.
  *	@path contains the path structure.
  *	@uid contains new owner's ID.
  *	@gid contains new group's ID.
  *	Return 0 if permission is granted.
+ *
+ *	@path_chown:
+ *	파일 또는 디렉토리의 소유자/그룹 변경 권한을 체크한다.
+ *	@path 는 path 구조체를 포함한다.
+ *	@uid 는 새로운 소유자의 ID를 갖는다.
+ *	@gid는 새로운 그룹의 ID를 갖는다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @path_chroot:
  *	Check for permission to change root directory.
  *	@path contains the path structure.
  *	Return 0 if permission is granted.
+ *
+ * @path_chroot:
+ * 루트 디렉토리 변경 권한을 체크한다.
+ * @path 는 path 구조체를 갖는다.
+ * 권한이 주어지면 0을 리턴한다.
+ *
  * @inode_readlink:
  *	Check the permission to read the symbolic link.
  *	@dentry contains the dentry structure for the file link.
