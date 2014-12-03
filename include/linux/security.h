@@ -947,19 +947,40 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@dentry는 파일에 대한 dentry 구조체를 포함한다.
  *	권한이 주어지면 0을 리턴한다.
  *
+ *
  * @inode_delete:
  *	@inode contains the inode structure for deleted inode.
  *	This hook is called when a deleted inode is released (i.e. an inode
  *	with no hard links has its use count drop to zero).  A security module
  *	can use this hook to release any persistent label associated with the
  *	inode.
+ *
+ * @inode_delete:
+ * @inodes는 삭제된 inode에 대한 inode 구조체를 갖는다.
+ * 이 후크는 삭제된 inode가 해제될때 호출된다.
+ * (예를 들면 하드링크가 없는 inode가 사용횟수가 0으로 떨어질때)
+ * 보안 모듈은 inode와 영구 라벨을 해제할 때 이 후크를 사용할 수 있다.
+ *
+ *
  * @inode_setxattr:
  *	Check permission before setting the extended attributes
  *	@value identified by @name for @dentry.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_setattr:
+ *	확장된 속성을 세팅하기 전에 퍼미션을 체크한다.
+ *	@value는 @dentry에 대해 @name에 의해 구분된다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @inode_post_setxattr:
  *	Update inode security field after successful setxattr operation.
  *	@value identified by @name for @dentry.
+ *
+ *	@inode_post_setattr:
+ *	setxattr이 성공적으로 수행된 후에 inode 보안 필드를 업데이트 한다.
+ *	@value는 @dentry 에 대해 @name에 의해 구분된다.
+ *
  * @inode_getxattr:
  *	Check permission before obtaining the extended attributes
  *	identified by @name for @dentry.
