@@ -871,7 +871,6 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@nd contains the nameidata structure for the parent directory.
  *	Return 0 if permission is granted.
  *
- *
  *	@inode_follow_link:
  *	경로 이름을 찾을 때 심볼릭 링크를 따라가는 권한을 체크한다.
  *	@dentry은 링크에 대한 dentry 구조체를 포함한다.
@@ -981,18 +980,36 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	setxattr이 성공적으로 수행된 후에 inode 보안 필드를 업데이트 한다.
  *	@value는 @dentry 에 대해 @name에 의해 구분된다.
  *
+ *
  * @inode_getxattr:
  *	Check permission before obtaining the extended attributes
  *	identified by @name for @dentry.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_getxattr:
+ *	@dentry에 대해 @name으로 구분되는 확장 속성을 얻기 전에 퍼미션을 체크한다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @inode_listxattr:
- *	Check permission before obtaining the list of extended attribute
+ *	Check permission름 before obtaining the list of extended attribute
  *	names for @dentry.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_listxattr:
+ *	@dentry에 대한 확장 속성 이름 리스트를 얻기 전에 퍼미션을 체크한다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @inode_removexattr:
  *	Check permission before removing the extended attribute
  *	identified by @name for @dentry.
  *	Return 0 if permission is granted.
+ *
+ *	@inode_removexattr:
+ *	@dentry에 대해 @name으로 구분되는 확장 속성 제거 전에 퍼미션을 체크한다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
  * @inode_getsecurity:
  *	Retrieve a copy of the extended attribute representation of the
  *	security label associated with @name for @inode via @buffer.  Note that
@@ -1000,6 +1017,13 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	has been removed. @alloc is used to specify of the call should return a
  *	value via the buffer or just the value length Return size of buffer on
  *	success.
+ *
+ *	@inode_getsecurity:
+ *	@buffer를 통해 @inode에 대한 @name과 관련된 보안 레이블의 확장 된 속성 표현의 사본을 검색한다.
+ *	주목할 점은 @name은 보안 접두사가 제거된 후에 속성 이름의 나머지이다.
+ *	@alloc는 버퍼 또는 성공시에 리턴되는 버퍼 사이즈 길이 값을 통해 값을 리턴해야 하는 호출의 명시화에 사용된다.
+ *
+ *
  * @inode_setsecurity:
  *	Set the security label associated with @name for @inode from the
  *	extended attribute value @value.  @size indicates the size of the
@@ -1007,31 +1031,74 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	Note that @name is the remainder of the attribute name after the
  *	security. prefix has been removed.
  *	Return 0 on success.
+ *
+ * @inode_setsecurity:
+ * 확장된 속성값 @value에서 @inode에 대한 @name과 관련된 보안 레이블을 설정한다.
+ * @size는 바이트의 @value크기를 나타낸다.
+ * @flags는 XATTR_CREATE,XATTR_REPLACE 또는 0 일 수 있다.
+ * 주목할 점은 @name은 보안 이후 나머지 속성 이름이다. 접두사는 제거된다.
+ * 권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @inode_listsecurity:
  *	Copy the extended attribute names for the security labels
  *	associated with @inode into @buffer.  The maximum size of @buffer
  *	is specified by @buffer_size.  @buffer may be NULL to request
  *	the size of the buffer required.
  *	Returns number of bytes used/required on success.
+ *
+ *	@inode_listsecurity:
+ *	@buffer에 @inode와 연관된 보안 레이블에 대한 확장 속성명을 복사한다.
+ *	@buffer의 최대 사이즈는 @buffer_size에 의해 명시되어 있다.
+ *	@buffer는 널에서 필요한 만큼 요청한 버퍼 사이즈가 될 수 있다.
+ * 성공적으로 사용된/요구된 바이트의 수가 리턴된다.
+ *
+ *
  * @inode_need_killpriv:
  *	Called when an inode has been changed.
  *	@dentry is the dentry being changed.
  *	Return <0 on error to abort the inode change operation.
  *	Return 0 if inode_killpriv does not need to be called.
  *	Return >0 if inode_killpriv does need to be called.
+ *
+ * @inode_need_killpriv:
+ * inode가 변경되면 호출된다.
+ * @dentry는 변경된 dentry 이다.
+ * inode 변경이 취소되는 에러가 발생하면 리턴값은 0보다 작다
+ * inode_killpriv 이 호출될 필요가 없다면, 리턴값을 0이다.
+ * inode_killpriv가 호출될 필요가 있으면 리턴값은 0보다 크다.
+ *
+ *
  * @inode_killpriv:
  *	The setuid bit is being removed.  Remove similar security labels.
  *	Called with the dentry->d_inode->i_mutex held.
  *	@dentry is the dentry being changed.
  *	Return 0 on success.  If error is returned, then the operation
  *	causing setuid bit removal is failed.
+ *
+ *	@inode_killpriv:
+ *	setuid 비트를 제거한다. 비슷한 보안 레이블을 제거한다.
+ *	dentry->d_inode->i_mutex와 함께 호출된다.
+ *	@dentry는 변경된 dentry이다.
+ *	성공하면 0을 리턴한다. 만약 에러가 리턴되면, setuid 비트 제거 실패의 원인이된다.
+ *
+ *
  * @inode_getsecid:
  *	Get the secid associated with the node.
  *	@inode contains a pointer to the inode.
  *	@secid contains a pointer to the location where result will be saved.
  *	In case of failure, @secid will be set to zero.
  *
+ * @inode_getsecid:
+ * node와 관계된 secid를 가져온다.
+ * @inode는 inode에 대한 포인터를 가진다.
+ * @secid는 결과가 저장될 위치에 대한 포인터를 가진다.
+ * 실패시에는, @secid는 0으로 세팅된다.
+ *
+ *
+ *
  * Security hooks for file operations
+ * 파일 작업을 위한 보안 후크
  *
  * @file_permission:
  *	Check file permissions before accessing an open file.  This hook is
@@ -1050,6 +1117,15 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@file contains the file structure being accessed.
  *	@mask contains the requested permissions.
  *	Return 0 if permission is granted.
+ *
+ *	@file_permission:
+ *	열려있는 파일을 접근하기 전에 권한을 확인한다.
+ *	이 후크는 파일 읽기/쓰기시 다양한 작업에 의해 호출된다.
+ *	보안 모듈은 이러한 작업에 추가적인 검사를 하기 위해 이 후크를 사용할 수 있는데, 예를 들면,
+ *	권한 등급 지정 또는 정책 변경 사항을 지원하기 위해 사용 권한을 재검증한다.
+ *
+ *
+ *
  * @file_alloc_security:
  *	Allocate and attach a security structure to the file->f_security field.
  *	The security field is initialized to NULL when the structure is first
