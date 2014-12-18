@@ -113,7 +113,9 @@ static inline void xrstor_state(struct xsave_struct *fx, u64 mask)
 static inline void xsave(struct task_struct *tsk)
 {
 	/* This, however, we can work around by forcing the compiler to select
-	   an addressing mode that doesn't require extended registers. */
+	   an addressing mode that doesn't require extended registers.
+	   이것은, 그러나, 확장 레지스터를 필요로하지 않는 어드레스 지정 모드를 선택하는 컴파일러를 강제함으로써 해결할 수있다.
+	 */
 	__asm__ __volatile__(".byte " REX_PREFIX "0x0f,0xae,0x27"
 			     : : "D" (&(tsk->thread.xstate->xsave)),
 				 "a" (-1), "d"(-1) : "memory");

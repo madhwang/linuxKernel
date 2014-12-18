@@ -735,6 +735,12 @@ int security_dentry_open(struct file *file, const struct cred *cred)
  */
 int security_task_create(unsigned long clone_flags)
 {
+	/* task_create
+	 * 자식 프로세스를 생성하기 전에 권한을 체크한다.
+	 *	clone(2) 메뉴얼 페이지에 @clone_flags의 설명이 있다.
+	 *	@clone_flag는 무엇이 공유 되어야 하는지 플래그 지시자를 가지고 있다.
+	 *	권한이 주어지면 0을 리턴한다.
+	 */
 	return security_ops->task_create(clone_flags);
 }
 

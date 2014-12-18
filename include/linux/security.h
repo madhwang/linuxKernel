@@ -1123,7 +1123,14 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	이 후크는 파일 읽기/쓰기시 다양한 작업에 의해 호출된다.
  *	보안 모듈은 이러한 작업에 추가적인 검사를 하기 위해 이 후크를 사용할 수 있는데, 예를 들면,
  *	권한 등급 지정 또는 정책 변경 사항을 지원하기 위해 사용 권한을 재검증한다.
- *
+ *	주목할 점은 이 후크는 실제로 읽기/쓰기 작업이 실행될 때 사용되는 반면,
+ *	inode_security_ops 후크는 파일이 오픈되었을때(다른 많은  작업에서도) 호출된다.
+ * 경고 : 이 후크는 파일을 읽거나 쓰는 다양한 시스템 호출 작업에 대한 권한을 재검증 하는데 사용될 수 있지만,
+ * 그것은 메모리 매핑된 파일에 대한 권한의 재검증은 다루지 않는다.
+ * 만약 그것들이 재검증을 필요로 한다면 보안 모듈은 반드시 이것을 구분해서 조작해야 한다.
+ * @file은 접근되는 파일 구조체를 갖는다.
+ * @mask는 요청된 권한을 갖는다.
+ * 권한이 주어지면 0을 리턴한다.
  *
  *
  * @file_alloc_security:
@@ -1132,9 +1139,23 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	created.
  *	@file contains the file structure to secure.
  *	Return 0 if the hook is successful and permission is granted.
+ *
+ * @file_alloc_security:
+ * 보안 구조체를 할당하고 file->f_security 필드에 대입한다..
+ * 구조체가 처음 생성되면 보안 필드는 NULL로 초기화 된다.
+ * @file 은 보안에 대한 파일 구조체를 갖는다.
+ * 이 후크가 성공하고 권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @file_free_security:
  *	Deallocate and free any security structures stored in file->f_security.
  *	@file contains the file structure being modified.
+ *
+ *	@file_free_security:
+ *	file->f_security에 저장되어 있던 모든 보안 구조체를 해제하고 없앤다.
+ *	@file는 수정된 파일 구조체를 갖는다.
+ *
+ *
  * @file_ioctl:
  *	@file contains the file structure.
  *	@cmd contains the operation to perform.
@@ -1144,6 +1165,17 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	simple integer value.  When @arg represents a user space pointer, it
  *	should never be used by the security module.
  *	Return 0 if permission is granted.
+ *
+ *	@file_ioctl:
+ *	@file은 파일 구조체를 갖는다.
+ *	@cmd는 실행할 작업을 갖는다.
+ *	@arg는 작업 인자를 갖는다.
+ *	@file에 ioctl 작업을 위한  권한을 체크한다.
+ *	주목할 점은 @arg는 종종 유저 스페이스 포인터를 표현 할 수 있다. 다른 겨우 간단한 정수형 값을
+ *	가질 수 있다. @arg가 유저 스페이스 포인터를 표현할 때, 보안 모듈에 의해 사용되서는 안된다.
+ *  권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @file_mmap :
  *	Check permissions for a mmap operation.  The @file may be NULL, e.g.
  *	if mapping anonymous memory.
@@ -1152,12 +1184,32 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@prot contains the protection that will be applied by the kernel.
  *	@flags contains the operational flags.
  *	Return 0 if permission is granted.
+ *
+ *	@file_mmap:
+ *	mmap 작업에 대한 퍼미션을 체크한다.
+ *  예를들어, 만약 익명의 메모리에 매핑된 경우 @file은 NULL일 것이다.
+ *  @file은 파일을 매핑하기 위한(NULL 일 수 있음) 파일 구조체를 갖는다.
+ *  @reqprot는 어플리케이션에 의해 요구된 보호 기능을갖는다.
+ *  @prot는 커널에 의해 적용되는 보호 기능을 갖는다.
+ *  @flag는 작업 플래그를 갖는다.
+ *  권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @file_mprotect:
  *	Check permissions before changing memory access permissions.
  *	@vma contains the memory region to modify.
  *	@reqprot contains the protection requested by the application.
  *	@prot contains the protection that will be applied by the kernel.
  *	Return 0 if permission is granted.
+ *
+ *	@file_mprotect:
+ *	메모리 엑세스 권한을 변경하기 전에 퍼미션을 체크한다.
+ *	@vma는 수정될 메모리 영역을 갖는다.
+ *	@reqprot는 어플리케이션에 의해 요구된 보호 기능을 갖는다.
+ *	@prot는 커널에 의해 적용되는 보호 기능을 갖는다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @file_lock:
  *	Check permission before performing file locking operations.
  *	Note: this hook mediates both flock and fcntl style locks.
@@ -1165,6 +1217,16 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@cmd contains the posix-translated lock operation to perform
  *	(e.g. F_RDLCK, F_WRLCK).
  *	Return 0 if permission is granted.
+ *
+ *	@file_lock:
+ *  파일 잠금 작업을 실행하기 전에 퍼미션을 체크한다.
+ *  주의 : 이 후크는 flock과 fcntl 형태의 잠금 모두를 중개한다.
+ *  @file은 파일 구조체를 갖는다.
+ *  @cmd는 수행할 수 있는 posix-translated 잠금 작업이 포함되어 있다.
+ *  (예를 들면 F_RDLCK, F_WRLCK)
+ *  권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @file_fcntl:
  *	Check permission before allowing the file operation specified by @cmd
  *	from being performed on the file @file.  Note that @arg can sometimes
@@ -1175,11 +1237,28 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@cmd contains the operation to be performed.
  *	@arg contains the operational arguments.
  *	Return 0 if permission is granted.
+ *
+ *	@file_fcntl:
+ * 파일 @file에서 수행되는 @cmd에 명시화된 파일 작업을 허용하기 전에 권한을 체크한다.
+ * 주목할 점은 @arg는 종종 유저 공간 포인터를 가질 수 있고, 다른 것으로는 간단한 정수형 값을 가질 수 있다.
+ * @arg가 유저 공간 포인터를 가지면, 보안 모듈에 의해 절대 사용되어서는 안된다.
+ * @file은 파일 구조체를 포함한다.
+ * @cmd는 실행될 작업을 갖는다.
+ * @arg는 작업 파라메터를 갖는다.
+ * 권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @file_set_fowner:
  *	Save owner security information (typically from current->security) in
  *	file->f_security for later use by the send_sigiotask hook.
  *	@file contains the file structure to update.
  *	Return 0 on success.
+ *
+ *	@file_set_fowner:
+ *	소유자의 보안 정보를(일반적으로 current->security로 부터) send_sigiotask 후크에 의해 나중에 사용하기 위해
+ * file->f_security에 저장한다.
+ *
+ *
  * @file_send_sigiotask:
  *	Check permission for the file owner @fown to send SIGIO or SIGURG to the
  *	process @tsk.  Note that this hook is sometimes called from interrupt.
@@ -1191,53 +1270,130 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@fown contains the file owner information.
  *	@sig is the signal that will be sent.  When 0, kernel sends SIGIO.
  *	Return 0 if permission is granted.
+ *
+ *	@file_send_sigiotask:
+ *	프로세스 @tsk에 SIGUO 또는 SIGURG를 보낼 수 있는 file 소유자 @fown 에 대한 권한을 체크한다.
+ *	이 후크는 종종 인터럽트로 부터 호출된다.
+ *	fown_struct가, @fown,구조체 파일의 컨텍스트 외부에 없으므로 파일 구조체(및 연관 보안 정보)는
+ *	container_of(fown,struct file, f_owner)로 항상 얻을 수 있다.
+ *	@tsk 는 시그널을 받는 task의 구조체를 갖는다.
+ *	@fown은 파일 소유자 정보를 갖는다.
+ *	@sig는 보내질 시그널이다. 0이면, 커널은 SIGIO를 보낸다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @file_receive:
  *	This hook allows security modules to control the ability of a process
  *	to receive an open file descriptor via socket IPC.
  *	@file contains the file structure being received.
  *	Return 0 if permission is granted.
  *
+ *	@file_receive:
+ *	이 후크는 보안 모듈이 프로세스가 소켓 IPC를 통해 열린 파일 디스크립터를 수신하는 기능을 컨트롤
+ *	할 수 있도록 한다.
+ *	@file은 수신된 파일 구조체를 갖는다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * Security hook for dentry
+ * dentry 을 위한 보안 후크
  *
  * @dentry_open
  *	Save open-time permission checking state for later use upon
  *	file_permission, and recheck access if anything has changed
  *	since inode_permission.
  *
+ *	@dentry_open:
+ *  file_permission에서 나중에 사용하기 위해 오픈 시점 권한 체크 상태를 저장하고,
+ *  inode_permission 후에 조금이라도 변경이 되면 재확인 접근을 한다.
+ *
  * Security hooks for task operations.
+ * task 작업을 위한 보안 후크
  *
  * @task_create:
  *	Check permission before creating a child process.  See the clone(2)
  *	manual page for definitions of the @clone_flags.
  *	@clone_flags contains the flags indicating what should be shared.
  *	Return 0 if permission is granted.
+ *
+ *	@task_create:
+ *	자식 프로세스를 생성하기 전에 권한을 체크한다.
+ *	clone(2) 메뉴얼 페이지에 @clone_flags의 설명이 있다.
+ *	@clone_flag는 무엇이 공유 되어야 하는지 플래그 지시자를 가지고 있다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @cred_alloc_blank:
  *	@cred points to the credentials.
  *	@gfp indicates the atomicity of any memory allocations.
  *	Only allocate sufficient memory and attach to @cred such that
  *	cred_transfer() will not get ENOMEM.
+ *
+ *	@cred_alloc_blank:
+ *	@cred는 자격들을 포인트한다.
+ *	@gfp는 메모리 할당의 원자성을 나타낸다.
+ *	오직 충분한 메모리를 할당하고 @cred에 연결하여, cred_transfer()는 ENOMEM을 받지 않는다.
+ *
+ *
  * @cred_free:
  *	@cred points to the credentials.
  *	Deallocate and clear the cred->security field in a set of credentials.
+ *
+ *	@cred_free:
+ *	@cred는 자격들을 포인트한다.
+ *	자격의 할당 해제하고 자격 증명 집합 내의 cred->security 필드를 지운다.
+ *
+ *
  * @cred_prepare:
  *	@new points to the new credentials.
  *	@old points to the original credentials.
  *	@gfp indicates the atomicity of any memory allocations.
  *	Prepare a new set of credentials by copying the data from the old set.
+ *
+ *	@cred_prepare:
+ *	@new는 새로운 자격 증명을 포인트한다.
+ *	@old는 원본 자격 증명을 포인트한다.
+ *	@gfp는 메모리 할당의 원자성을 지시한다.
+ *	예전 집합으로 부터 복사된 데이터로 새로운 자격증명 집합을 준비한다.
+ *
+ *
  * @cred_commit:
  *	@new points to the new credentials.
  *	@old points to the original credentials.
  *	Install a new set of credentials.
+ *
+ *	@cred_commit:
+ *	@new는 새로운 자격 증명을 포인트한다.
+ *	@old는 원본 자격 증명을 포인트한다.
+ *	새로운 자격 증명 집합을 설치한다.
+ *
+ *
  * @cred_transfer:
  *	@new points to the new credentials.
  *	@old points to the original credentials.
  *	Transfer data from original creds to new creds
+ *
+ *	@cred_transfer:
+ *	@new는 새로운 자격 증명을 포인트한다.
+ *	@old는 원본 자격 증명을 포인트한다.
+ *	원본 자격 증명에서 새로운 자격증명으로 데이터를 전송한다.
+ *
+ *
  * @kernel_act_as:
  *	Set the credentials for a kernel service to act as (subjective context).
  *	@new points to the credentials to be modified.
  *	@secid specifies the security ID to be set
  *	The current task must be the one that nominated @secid.
  *	Return 0 if successful.
+ *
+ *	@kernel_act_as:
+ *	커널 서비스가 (주관적인 컨텍스트) 역할을 하도록 자격 증명을 설정한다.
+ *	@new는 수정된 자격 증명을 포인트한다.
+ *	@secid는 보안 ID가 지정되도록 명세화 한다.
+ *	현재 task는 반드시 @secid 중 하나로 지명되어야 한다.
+ *	만약 성공하면 0을 리턴한다.
+ *
+ *
  * @kernel_create_files_as:
  *	Set the file creation context in a set of credentials to be the same as
  *	the objective context of the specified inode.
@@ -1245,11 +1401,28 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@inode points to the inode to use as a reference.
  *	The current task must be the one that nominated @inode.
  *	Return 0 if successful.
+ *
+ *	@kernel_create_file_as:
+ * 자격 증명 집합 내의 파일 생성 컨텍스트를 세팅하고 명세화된 inode의 목표 컨텍스트와
+ * 같아야 한다.
+ * @new는 수정된 자격 증명을 포인트한다.
+ * @inode는 참조를 사용해서 inode를 포인트한다.
+ * 현재 태스크는 반드시 지명된 @inode 중 하나여야 한다.
+ * 만약 성공하면 0을 리턴한다.
+ *
+ *
  * @kernel_module_request:
  *	Ability to trigger the kernel to automatically upcall to userspace for
  *	userspace to load a kernel module with the given name.
  *	@kmod_name name of the module requested by the kernel
  *	Return 0 if successful.
+ *
+ *	@kernel_module_request:
+ *	커널을 트리거 할 수 있는 기능이 주어진 이름의 커널 모듈을 로드해 자동으로 사용자 공간에 사용자 공간에 대한 호출을 한다.
+ *	@kmod_name은 커널에 의해 요청된 모듈의 이름이다.
+ *	만약 성공하면 0을 리턴한다.
+ *
+ *
  * @task_setuid:
  *	Check permission before setting one or more of the user identity
  *	attributes of the current process.  The @flags parameter indicates
@@ -1262,6 +1435,19 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@id2 contains a uid.
  *	@flags contains one of the LSM_SETID_* values.
  *	Return 0 if permission is granted.
+ *
+ *	@task_setuid:
+ * 현재 프로세스의 하나 또는 그 이상의 사용자 식별 속성을 세팅하기 전에 권한을 체크한다.
+ * @flags 파라메터는 set*gid 시스템 콜들 중에서 이 후크를 호출하고 @id0,@id1,@id2 파라메터가 어떻게 해석되는지를
+ * 지시한다.
+ * @flags 값과 그 의미들에 대해서는 이 파일의 시작 부분의 LSM_SETID 정의를 보면된다.
+ * @id0은 uid를 갖는다.
+ * @id1은 uid를 갖는다.
+ * @id2는 uid를 갖는다.
+ * @flags는 LSM_SETUD_ 로 시작하는 모든 값 중 하나를 갖는다.
+ * 만약 권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @task_fix_setuid:
  *	Update the module's state after setting one or more of the user
  *	identity attributes of the current process.  The @flags parameter
@@ -1271,6 +1457,16 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@old is the set of credentials that are being replaces
  *	@flags contains one of the LSM_SETID_* values.
  *	Return 0 on success.
+ *
+ *	@task_fix_setuid:
+ *	현재 프로세스의 사용자 식별 속성이 하나 또는 그 이상 세팅된 후에 모듈의 상태를 업데이트한다.
+  * @flags 파라메터는 set*gid 시스템 콜들 중에서 이 후크를 호출한다.
+ *	만약 @new가 자격 증명의 집합인 경우 설치된다.
+ *	수정은 @current->cred 보다 이것에 해야한다.
+ *	@old는 자격 증명의 집합으로 @ flag가 가진 LSM_SETID* 값 중 하나로 교체된다.
+ *	성공하면 0을 리턴한다.
+ *
+ *
  * @task_setgid:
  *	Check permission before setting one or more of the group identity
  *	attributes of the current process.  The @flags parameter indicates
@@ -1283,17 +1479,44 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
  *	@id2 contains a gid.
  *	@flags contains one of the LSM_SETID_* values.
  *	Return 0 if permission is granted.
+ *
+ * @task_setgid:
+ * 현재 프로세스의 그룹 식별자 속성을 하나 또는 그 이상 세팅하기 전에 퍼미션을 체크한다.
+ * @flags 파라메터는 set*gid 시스템 콜들 중에서 이 후크를 호출하고 @id0,@id1,@id2 파라메터가 어떻게 해석되는지를
+ * 지시한다.
+ * 이 파일의 시작 부분에 있는  LSM_SETID 정의 부분에서 @flags 값과 그것들의 의미에 대해 볼 수 있다.
+ * @id0는 gid 를 갖는다.
+ * @id1은 gid를 갖는다.
+ * @id2는 gid를 갖는다
+ * @flags는 LSM_SETID_* 값들 중 하나를 갖는다.
+ * 권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @task_setpgid:
  *	Check permission before setting the process group identifier of the
  *	process @p to @pgid.
  *	@p contains the task_struct for process being modified.
  *	@pgid contains the new pgid.
  *	Return 0 if permission is granted.
+ *
+ *	@task_setpgid:
+ *	프로세스 @p를 @pgid로 프로세스 그룹 식별자를 세팅하기 전에 퍼미션을 체크한다.
+ *	@p는 수정된 프로세스에 대한 task_struct를 갖는다.
+ *	@pgid는 새로운 pgid 를 갖는다.
+ * 권한이 주어지면 0을 리턴한다.
+ *
+ *
  * @task_getpgid:
  *	Check permission before getting the process group identifier of the
  *	process @p.
  *	@p contains the task_struct for the process.
  *	Return 0 if permission is granted.
+ *
+ *	@task_getpgid:
+ *	프로세스 @p의 프로스세 그룹 식별자를 가져오기 전에 권한을 체크한다.
+ *	@p는 프로세스 task_struct 를 갖는다.
+ *	권한이 주어지면 0을 리턴한다.
+ *
  * @task_getsid:
  *	Check permission before getting the session identifier of the process
  *	@p.

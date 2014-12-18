@@ -1008,16 +1008,18 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	if ((clone_flags & CLONE_PARENT) && (current->signal->flags & SIGNAL_UNKILLABLE))
 		return ERR_PTR(-EINVAL);
 
+	/* clone_flags에 대한 권한을 체크한다. */
 	retval = security_task_create(clone_flags);
 	if (retval)
 		goto fork_out;
 
 	retval = -ENOMEM;
-	p = dup_task_struct(current);
+	p = dup_task_struct(current); /* 현재 태스크를 복사한다. */
 	if (!p)
 		goto fork_out;
 
-	ftrace_graph_init_task(p);
+	/* kernel/trace/ftrace.c 참조 */
+	ftrace_graph_init_task(p); //새로 생성된 태스크에 대해 스택을 할당한다.
 
 	rt_mutex_init_task(p);
 

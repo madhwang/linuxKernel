@@ -361,6 +361,9 @@ struct ftrace_graph_ret {
  * Stack of return addresses for functions
  * of a thread.
  * Used in struct thread_info
+ *
+ * 스레드의 함수에 대한 주소 리턴의 스택.
+ * thread_info 구조체에서 사용한다.
  */
 struct ftrace_ret_stack {
 	unsigned long ret;

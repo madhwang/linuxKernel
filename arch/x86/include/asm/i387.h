@@ -218,6 +218,8 @@ static inline int fxrstor_checking(struct i387_fxsave_struct *fx)
  */
 static inline void __save_init_fpu(struct task_struct *tsk)
 {
+
+	/* TS_XSAVE		0x0010	: Use xsave/xrstor */
 	if (task_thread_info(tsk)->status & TS_XSAVE) {
 		struct xsave_struct *xstate = &tsk->thread.xstate->xsave;
 		struct i387_fxsave_struct *fx = &tsk->thread.xstate->fxsave;
@@ -280,6 +282,7 @@ extern int restore_i387_xstate(void __user *buf);
 
 static inline void __unlazy_fpu(struct task_struct *tsk)
 {
+	/* 스레드 스택의  status 값과 스레드의 fpu 사용여부 상수와 비교 */
 	if (task_thread_info(tsk)->status & TS_USEDFPU) {
 		__save_init_fpu(tsk);
 		stts();

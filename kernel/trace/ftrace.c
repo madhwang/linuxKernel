@@ -3349,7 +3349,10 @@ void unregister_ftrace_graph(void)
 	mutex_unlock(&ftrace_lock);
 }
 
-/* Allocate a return stack for newly created task */
+/* Allocate a return stack for newly created task
+ *
+ * 새로 생성된 태스크에 대해 스택을 할당한다.
+ * */
 void ftrace_graph_init_task(struct task_struct *t)
 {
 	/* Make sure we do not use the parent ret_stack */
@@ -3359,16 +3362,38 @@ void ftrace_graph_init_task(struct task_struct *t)
 	if (ftrace_graph_active) {
 		struct ftrace_ret_stack *ret_stack;
 
+		/*
+		 *  ftrace.h
+		 * #define FTRACE_RETFUNC_DEPTH 50
+		 *
+		 * 스레드의 함수에 대한 주소 리턴의 스택.
+		 * thread_info 구조체에서 사용한다.
+		 * struct ftrace_ret_stack {
+			unsigned long ret;
+			unsigned long func;
+			unsigned long long calltime;
+			unsigned long long subtime;
+			unsigned long fp;
+		};
+		 *
+		 * gfp.h
+		 * #define GFP_KERNEL	(__GFP_WAIT | __GFP_IO | __GFP_FS)
+		 *
+		 * #define __GFP_WAIT	((__force gfp_t)0x10u)	//Can wait and reschedule?
+		 * #define __GFP_IO	((__force gfp_t)0x40u)	//Can start physical IO?
+		 * #define __GFP_FS	((__force gfp_t)0x80u)	//Can call down to low-level FS?
+		 */
 		ret_stack = kmalloc(FTRACE_RETFUNC_DEPTH
 				* sizeof(struct ftrace_ret_stack),
 				GFP_KERNEL);
 		if (!ret_stack)
 			return;
+		/* atomic_set . 첫번째의 인자의 값을 두번째 인자의 값으로 원자적으로 세팅한다. */
 		atomic_set(&t->tracing_graph_pause, 0);
 		atomic_set(&t->trace_overrun, 0);
 		t->ftrace_timestamp = 0;
 		/* make curr_ret_stack visable before we add the ret_stack */
-		smp_wmb();
+		smp_wmb(); //system.h
 		t->ret_stack = ret_stack;
 	}
 }

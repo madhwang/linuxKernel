@@ -31,6 +31,7 @@ static inline int atomic_read(const atomic_t *v)
  * @i: required value
  *
  * Atomically sets the value of @v to @i.
+ * @v의 값을 i 로 원자적으로 세팅한다.
  */
 static inline void atomic_set(atomic_t *v, int i)
 {
