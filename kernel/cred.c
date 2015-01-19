@@ -415,6 +415,11 @@ free_tgcred:
  *
  * The new process gets the current process's subjective credentials as its
  * objective and subjective credentials
+ *
+ * fork()에 의해 생성되는 새로운 프로세스에 대해 인증 자격을 복사한다.
+ * 우리가 할 수 있는 경우 우리는 공유하지만, 어떤 상황에서 우리는 새로운 세트를 생성한다.
+ *
+ * 새로운 프로세스는 그것의 주관적이고 객관적인 자격 증명으로 현재 프로세스의 주관적인 정보를 받는다.
  */
 int copy_creds(struct task_struct *p, unsigned long clone_flags)
 {

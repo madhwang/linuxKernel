@@ -1014,13 +1014,20 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 		goto fork_out;
 
 	retval = -ENOMEM;
-	p = dup_task_struct(current); /* 현재 태스크를 복사한다. */
+	/*
+	 * 커널 스택을 새로 만들고 새 프로세스용 thread_info, task_struct 구조체를 만든다.
+	 * 새로 만들어진 데이터의 값은 현재 태스크와 동일하다.
+	 * 부모 프로세스의 값을 물려받지 않는 항목은 주로 통계 정보다. 대부분의 task_struct 항목 값은 바뀌지 않는다.
+	 * 자식 프로세스의 상태를 TASK_UNINTERRPUOTIBLE로 설정해 아직 실행되지 않게 한다.
+	 */
+	p = dup_task_struct(current);
 	if (!p)
 		goto fork_out;
 
 	/* kernel/trace/ftrace.c 참조 */
 	ftrace_graph_init_task(p); //새로 생성된 태스크에 대해 스택을 할당한다.
 
+	/* spinlock_types.h 의 raw_spinlock 구조체를 세팅한다. */
 	rt_mutex_init_task(p);
 
 #ifdef CONFIG_PROVE_LOCKING
@@ -1029,13 +1036,14 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 #endif
 	retval = -EAGAIN;
 	if (atomic_read(&p->real_cred->user->processes) >=
-			task_rlimit(p, RLIMIT_NPROC)) {
+			task_rlimit(p, RLIMIT_NPROC)) { /* tsk->signal->rlim[limit].rlim_cur */
 		/* capable 함수 - kernel/capability.c */
 		if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RESOURCE) &&
 		    p->real_cred->user != INIT_USER)
 			goto bad_fork_free;
 	}
 
+	/* 인증 자격을 복사한다.  cred.c */
 	retval = copy_creds(p, clone_flags);
 	if (retval < 0)
 		goto bad_fork_free;
@@ -1044,16 +1052,30 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 	 * If multiple threads are within copy_process(), then this check
 	 * triggers too late. This doesn't hurt, the check is only there
 	 * to stop root fork bombs.
+	 * 만약 복수개의 스레드가 copy_procss() 안에 있으면, 이 체크 트리거는 너무 늦다.
+	 * 이것은 피해를 입히지 않고, 오직 대실패한 루트 fork 중지 체크만 한다.
 	 */
 	retval = -EAGAIN;
 	if (nr_threads >= max_threads)
 		goto bad_fork_cleanup_count;
 
+	/*
+	 * task_thread_info(p) : ((struct thread_info *)(task)->stack)
+	 */
 	if (!try_module_get(task_thread_info(p)->exec_domain->module))
 		goto bad_fork_cleanup_count;
 
 	p->did_exec = 0;
+	/* p->delays 에 커널 메모리를 할당한다. */
 	delayacct_tsk_init(p);	/* Must remain after dup_task_struct() */
+
+	/*
+	 *
+	 * task_struct 구조체의 flags 내용을 정리한다.
+	 * 작업이 관리자 권한을 가지고 있음을 뜻하는 PF_SUPERPRVI 플래그를 초기화 한다.
+	 * 프로세스가 exec() 함수를 호출하지 않았음을 뜻하는 PF_FORKNOEXEC 플래그를 설정한다.
+	 *
+	 */
 	copy_flags(clone_flags, p);
 	INIT_LIST_HEAD(&p->children);
 	INIT_LIST_HEAD(&p->sibling);
@@ -1166,6 +1188,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 
 	if (pid != &init_struct_pid) {
 		retval = -ENOMEM;
+		/* 새로 만든 태스크에 새로운 PID 값을 할당한다. */
 		pid = alloc_pid(p->nsproxy->pid_ns);
 		if (!pid)
 			goto bad_fork_cleanup_io;

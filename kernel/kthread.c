@@ -105,12 +105,27 @@ static void create_kthread(struct kthread_create_info *create)
  *
  * When woken, the thread will run @threadfn() with @data as its
  * argument. @threadfn() can either call do_exit() directly if it is a
- * standalone thread for which noone will call kthread_stop(), or
+ * standalone thread for which no one will call kthread_stop(), or
  * return when 'kthread_should_stop()' is true (which means
  * kthread_stop() has been called).  The return value should be zero
  * or a negative error number; it will be passed to kthread_stop().
  *
  * Returns a task_struct or ERR_PTR(-ENOMEM).
+ *
+ * kthread_create - kthread를 생성한다.
+ * @threadfn : signal_pending(current) 까지 실행하는 함수
+ * @data : @threadfn에 대한 data 포인터
+ * @namefmt: thread에 대한 printf 스타일 이름.
+ *
+ * 설명 : 이 헬퍼 함수는 커널 스레드를 만들고 이름을 부여한다.
+ * 쓰레드는 중지될 것이고, wake_up_process() 가 시작 시킨다. kthread_run()또한 그렇다.
+ *
+ * 깨어나게 되면, 쓰레드는 인자값으로 @data를 가지고 @threadfn() 을 실행하게 된다.
+ * @threadfn()은 아무도 kthread_stop()을 호출하지 않는 독립 스레드인 경우 직접 do_exit()를 호출하거나,
+ * 'kthread_should_stop()'이 true 이면(kthread_stop()이 호출된 경우) 리턴한다.
+ * 리턴값이 0이거나 음수 값으로서, kthread_stop()에 전달된다.
+ *
+ * task_struct 또는 ERR_PTR(-ENOMEM)을 리턴한다.
  */
 struct task_struct *kthread_create(int (*threadfn)(void *data),
 				   void *data,
@@ -176,16 +191,30 @@ EXPORT_SYMBOL(kthread_bind);
  * kthread_stop - stop a thread created by kthread_create().
  * @k: thread created by kthread_create().
  *
+ * kthread_stop - kthread_create()에 의해 생성된 스레드를 중지한다.
+ * @k :  kthread_create()에 의해 생성된 스레드
+ *
  * Sets kthread_should_stop() for @k to return true, wakes it, and
  * waits for it to exit. This can also be called after kthread_create()
  * instead of calling wake_up_process(): the thread will exit without
  * calling threadfn().
  *
+ * @k에 대해 true를 리턴하는 kthread_should_stop()을 세팅하고, 그것을 깨우고,
+ * 그것이 종료될 때까지 기다린다. 이것은 또한 kthread_create() 호출 후에
+ * wake_up_process() 대신에 호출할 수 있으며, 스레드는 threadfn()호출 없이 종료된다.
+ *
+ *
  * If threadfn() may call do_exit() itself, the caller must ensure
  * task_struct can't go away.
  *
+ * 만약 threadfn() 자체적으로 do_exit()를 호출하면, 호출자는 반드시 task_struct 를
+ * 멀리 갈 수 없도록 해야 한다.
+ *
  * Returns the result of threadfn(), or %-EINTR if wake_up_process()
  * was never called.
+ *
+ * threadfn()을 리턴하거나, wake_up_process()가 전혀 호출되지 않으면  %-EINTER가 리턴된다.
+ *
  */
 int kthread_stop(struct task_struct *k)
 {
