@@ -938,6 +938,7 @@ NORET_TYPE void do_exit(long code)
 
 	exit_irq_thread();
 
+	/*  task_struct 구조체의 flags 항목에 PF_EXITING 플래그를 설정한다. */
 	exit_signals(tsk);  /* sets PF_EXITING */
 	/*
 	 * tsk->flags are checked in the futex code to protect against
@@ -951,6 +952,9 @@ NORET_TYPE void do_exit(long code)
 				current->comm, task_pid_nr(current),
 				preempt_count());
 
+	/*
+	 * BSD 방식의 프로세스 정보 기록 기능을 사용하는 경우 아래 함수를 호출해서 관련 정보를 기록한다.
+	 */
 	acct_update_integrals(tsk);
 	/* sync mm's RSS info before statistics gathering */
 	if (tsk->mm)
@@ -971,6 +975,11 @@ NORET_TYPE void do_exit(long code)
 	tsk->exit_code = code;
 	taskstats_exit(tsk, group_dead);
 
+	/*
+	 * 해당 프로세스가 가지고 있는 mm_struct를 반환한다.
+	 * 다른 프로세스에서 이 주소 공간을 사용하지 않는다면,
+	 * 즉 주소 공간이 공유 되어 있지 않다면 커널은 해당 자원을 해제한다.
+	 */
 	exit_mm(tsk);
 
 	if (group_dead)
